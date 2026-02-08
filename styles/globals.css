@@ -33,13 +33,18 @@
   }
 
   body {
-    @apply w-full max-w-container mx-auto px-[120px] pt-[120px] pb-[120px] font-sans;
+    @apply w-full max-w-container mx-auto px-[120px] pt-[120px] pb-0 font-sans;
   }
 
   @media (max-width: 640px) {
     body {
       padding-left: 10px;
       padding-right: 10px;
+      padding-top: 20px;
+    }
+
+    nav {
+      margin-bottom: 50px !important;
     }
   }
 
@@ -74,7 +79,7 @@
 
 @layer components {
   .nav-logo {
-    @apply font-display font-extrabold text-[50px] no-underline text-inherit flex items-center;
+    @apply font-display font-extrabold text-[30px] no-underline text-inherit flex items-center;
   }
 
   .nav-item {
@@ -95,6 +100,28 @@
     left: calc(50% + min(600px, 50vw - 120px) + 15px);
     right: auto;
     /* transform handled by JS */
+  }
+
+  @media (max-width: 640px) {
+    .side-menu {
+      display: none !important;
+    }
+
+    /* 모바일 슬라이더 컨테이너 */
+    .work-content-slider {
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .work-content-slider-container {
+      display: flex;
+      transition: transform 0.3s ease-out;
+    }
+
+    .work-content-slider-item {
+      width: 100%;
+      flex-shrink: 0;
+    }
   }
 
   .side-menu-item {
@@ -118,6 +145,10 @@
   .home-columns {
     --column-gap: 20px;
     /* Home page column gap override */
+  }
+
+  .home-columns .column {
+    margin-bottom: 50px;
   }
 
   .home-columns .exhibition-item {
@@ -154,6 +185,7 @@
     .columns-container {
       flex-direction: column;
       align-items: center;
+      gap: 0;
     }
 
     .column {
@@ -281,7 +313,7 @@
   }
 
   .exhibition-solo-group {
-    margin-bottom: var(--spacing-xxl);
+    margin-bottom: 0;
   }
 
   .timeline-name {
@@ -389,6 +421,56 @@
 
   .cv-class-data {
     @apply flex flex-col gap-[15px];
+  }
+
+  @media (max-width: 640px) {
+    .cv-class-item {
+      margin-bottom: 10px;
+    }
+
+    .cv-class-group {
+      margin-bottom: 50px;
+    }
+
+    .cv-class-data {
+      gap: 10px;
+    }
+
+    .cv-data-item {
+      gap: 0 !important;
+    }
+
+    /* Exhibition description-box 내부 모든 요소의 아래 여백 제거 (모바일만) */
+    .exhibition-item .description-box .exhibition-type,
+    .exhibition-item .description-box .exhibition-period,
+    .exhibition-item .description-box .artwork-detail-paragraph {
+      margin-bottom: 0;
+    }
+
+    /* Exhibition-name 아래 여백 줄이기 (모바일만) */
+    .exhibition-name {
+      margin-bottom: 10px !important;
+    }
+
+    /* 프로젝트 제목 아래 여백 줄이기 (모바일만) */
+    .project-item {
+      margin-bottom: 10px !important;
+    }
+
+    /* 프로젝트 묶음 간 간격 줄이기 (모바일만) */
+    .name-container {
+      margin-bottom: 50px !important;
+    }
+
+    /* 타임라인 제목 아래 여백 줄이기 (모바일만) */
+    .timeline-name {
+      margin-bottom: 10px !important;
+    }
+
+    /* 타임라인 묶음 간 간격 줄이기 (모바일만) */
+    .timeline-group {
+      margin-bottom: 50px !important;
+    }
   }
 
   .cv-data-item {
