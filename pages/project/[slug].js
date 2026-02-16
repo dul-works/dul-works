@@ -20,6 +20,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
   const [isVerticalDragging, setIsVerticalDragging] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = React.useRef(null);
+  const videoRefs = React.useRef({}); // 모든 영상 요소의 ref 저장
 
   if (!project) {
     return (
@@ -211,6 +212,48 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
       };
     }
   }, [isVerticalDragging]);
+
+  // 모든 영상이 로드되면 동시에 재생 시작하여 싱크 맞추기
+  useEffect(() => {
+    const videos = Object.values(videoRefs.current).filter(Boolean);
+    if (videos.length === 0) return;
+
+    let loadedCount = 0;
+    const totalVideos = videos.length;
+    const startTime = Date.now();
+
+    const handleCanPlay = () => {
+      loadedCount++;
+      if (loadedCount === totalVideos) {
+        // 모든 영상이 로드되면 동시에 재생 시작
+        const loadTime = Date.now() - startTime;
+        videos.forEach((video) => {
+          if (video) {
+            video.currentTime = 0; // 시작점으로 리셋
+            video.play().catch(() => {}); // 재생 시작
+          }
+        });
+      }
+    };
+
+    videos.forEach((video) => {
+      if (video) {
+        video.addEventListener('canplay', handleCanPlay);
+        // 이미 로드된 경우도 처리
+        if (video.readyState >= 3) {
+          handleCanPlay();
+        }
+      }
+    });
+
+    return () => {
+      videos.forEach((video) => {
+        if (video) {
+          video.removeEventListener('canplay', handleCanPlay);
+        }
+      });
+    };
+  }, [basePath]); // basePath가 변경되면 다시 초기화
 
   // Google Maps 스크립트 로드 및 초기화
   useEffect(() => {
@@ -555,48 +598,47 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                               <div className="project-detail-newborn-image-bottom">
                                 {(() => {
                                   const { currentIndex, nextIndex, currentOpacity, nextOpacity } = getVideoIndicesAndOpacity(verticalSliderPosition);
+                                  // 모든 12개의 영상을 미리 렌더링하고 재생 준비 상태로 만들기
+                                  // 빠른 슬라이더 이동 시에도 회색이 보이지 않도록 모든 영상을 미리 로드
                                   return (
                                     <>
-                                      <video
-                                        key={`directional-mel-${currentIndex}`}
-                                        autoPlay
-                                        loop
-                                        muted
-                                        playsInline
-                                        style={{
-                                          position: 'absolute',
-                                          top: 0,
-                                          left: 0,
-                                          width: '100%',
-                                          height: '100%',
-                                          objectFit: 'cover',
-                                          opacity: currentOpacity,
-                                          transition: isVerticalDragging ? 'none' : 'opacity 0.3s ease'
-                                        }}
-                                      >
-                                        <source src={`${basePath}/assets/videos/directional_mel_${String(currentIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
-                                      </video>
-                                      {nextIndex !== currentIndex && (
-                                        <video
-                                          key={`directional-mel-${nextIndex}`}
-                                          autoPlay
-                                          loop
-                                          muted
-                                          playsInline
-                                          style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            opacity: nextOpacity,
-                                            transition: isVerticalDragging ? 'none' : 'opacity 0.3s ease'
-                                          }}
-                                        >
-                                          <source src={`${basePath}/assets/videos/directional_mel_${String(nextIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
-                                        </video>
-                                      )}
+                                      {Array.from({ length: 12 }, (_, i) => {
+                                        const videoIndex = i + 1;
+                                        const isCurrent = videoIndex === currentIndex;
+                                        const isNext = videoIndex === nextIndex && nextIndex !== currentIndex;
+                                        const opacity = isCurrent ? currentOpacity : isNext ? nextOpacity : 0;
+                                        
+                                        return (
+                                          <video
+                                            key={`directional-mel-${videoIndex}`}
+                                            ref={(el) => {
+                                              if (el) videoRefs.current[videoIndex] = el;
+                                            }}
+                                            autoPlay
+                                            loop
+                                            muted
+                                            playsInline
+                                            preload="auto"
+                                            style={{
+                                              position: 'absolute',
+                                              top: 0,
+                                              left: 0,
+                                              width: '100%',
+                                              height: '100%',
+                                              objectFit: 'cover',
+                                              opacity: opacity,
+                                              // 빠른 전환을 위해 transition 최소화
+                                              transition: isVerticalDragging ? 'none' : 'opacity 0.1s linear',
+                                              pointerEvents: 'none',
+                                              zIndex: isCurrent ? 2 : isNext ? 1 : 0,
+                                              // 영상이 로드되지 않았을 때도 배경색으로 회색이 보이지 않도록
+                                              backgroundColor: 'transparent'
+                                            }}
+                                          >
+                                            <source src={`${basePath}/assets/videos/directional_mel_${String(videoIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
+                                          </video>
+                                        );
+                                      })}
                                     </>
                                   );
                                 })()}
