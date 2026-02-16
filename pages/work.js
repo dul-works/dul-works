@@ -8,7 +8,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
   const router = useRouter();
   const [currentView, setCurrentView] = useState('project');
   const [translateX, setTranslateX] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
+  const [isSwiping, setIsSwiping] = useState(false); // UI 업데이트용 (transition 제어)
   const [isMobile, setIsMobile] = useState(false);
   const [containerHeight, setContainerHeight] = useState('auto');
   const contentRef = useRef(null);
@@ -16,6 +16,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
   const isScrolling = useRef(false);
+  const isSwipingRef = useRef(false); // 이벤트 핸들러에서 동기적으로 읽기 위한 ref
   const currentTranslateX = useRef(0);
   const viewRefs = useRef({});
 
@@ -147,6 +148,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
       touchStartX.current = e.touches[0].clientX;
       touchStartY.current = e.touches[0].clientY;
       isScrolling.current = false;
+      isSwipingRef.current = false;
       setIsSwiping(false);
       
       // 현재 위치를 기준으로 설정
@@ -165,7 +167,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
       const absDeltaX = Math.abs(deltaX);
       
       // 초기 이동 방향 감지 (더 빠른 스크롤 감지)
-      if (!isSwiping && absDeltaX < 5 && deltaY < 5) {
+      if (!isSwipingRef.current && absDeltaX < 5 && deltaY < 5) {
         // 아직 충분히 이동하지 않음
         return;
       }
@@ -173,6 +175,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
       // 수직 스크롤이 더 크면 스크롤 중으로 판단
       if (deltaY > absDeltaX && deltaY > 10) {
         isScrolling.current = true;
+        isSwipingRef.current = false;
         setIsSwiping(false);
         return;
       }
@@ -184,6 +187,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
           e.preventDefault();
         }
         
+        isSwipingRef.current = true;
         setIsSwiping(true);
         
         const currentIndex = getViewIndex(currentView);
@@ -229,7 +233,8 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
     const handleTouchEnd = (e) => {
       if (touchStartX.current === null || touchStartY.current === null) return;
       
-      const wasSwiping = isSwiping;
+      const wasSwiping = isSwipingRef.current; // ref에서 동기적으로 읽기
+      isSwipingRef.current = false;
       setIsSwiping(false);
       
       if (isScrolling.current) {

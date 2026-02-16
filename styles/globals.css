@@ -313,7 +313,7 @@
   }
 
   .exhibition-solo-group {
-    margin-bottom: 0;
+    margin-bottom: var(--spacing-xxl);
   }
 
   .timeline-name {
@@ -470,6 +470,11 @@
     /* 타임라인 묶음 간 간격 줄이기 (모바일만) */
     .timeline-group {
       margin-bottom: 50px !important;
+    }
+
+    /* 개인전과 단체전 묶음 간 간격 제거 (모바일만) */
+    .exhibition-solo-group {
+      margin-bottom: 0 !important;
     }
   }
 
