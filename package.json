@@ -15,9 +15,11 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
+    "imagemin": "^9.0.1",
     "next": "^14.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
