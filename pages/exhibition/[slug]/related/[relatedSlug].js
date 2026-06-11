@@ -94,7 +94,7 @@ export async function getStaticPaths() {
     }
     return {
       paths,
-      fallback: false
+      fallback: 'blocking'
     };
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
@@ -102,7 +102,7 @@ export async function getStaticPaths() {
     }
     return {
       paths: [],
-      fallback: false
+      fallback: 'blocking'
     };
   }
 }
@@ -150,7 +150,8 @@ export async function getStaticProps({ params }) {
           content: relatedTextContent?.content || []
         },
         relatedTextSlug: params.relatedSlug
-      }
+      },
+      revalidate: 300
     };
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

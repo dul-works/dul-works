@@ -1166,7 +1166,7 @@ export async function getStaticPaths() {
       paths: allSlugs.map(slug => ({
         params: { slug }
       })),
-      fallback: false // 새로운 데이터가 있을 수 있으므로 blocking
+      fallback: 'blocking'
     };
   } catch (error) {
     console.error('getStaticPaths 오류:', error);
@@ -1265,6 +1265,7 @@ export async function getStaticProps({ params }) {
       project,
       slug: params.slug,
       newbornArtworks: artworks
-    }
+    },
+    revalidate: 300
   };
 }

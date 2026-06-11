@@ -28,7 +28,8 @@ export async function getStaticProps() {
       props: {
         classGroups,
         sortedClasses
-      }
+      },
+      revalidate: 300
     };
   } catch (error) {
     console.error('CV 데이터 로드 오류:', error);

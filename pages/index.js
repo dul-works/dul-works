@@ -156,7 +156,8 @@ export async function getStaticProps() {
         artistStatement,
         currentExhibitions,
         currentProjects
-      }
+      },
+      revalidate: 300
     };
   } catch (error) {
     console.error('데이터 로드 오류:', error);

@@ -366,7 +366,7 @@ export async function getStaticPaths() {
       paths: slugs.map(slug => ({
         params: { slug }
       })),
-      fallback: false // 새로운 slug는 빌드 시 생성, 없으면 404
+      fallback: 'blocking'
     };
   } catch (error) {
     console.error('getStaticPaths 오류:', error);
@@ -419,7 +419,8 @@ export async function getStaticProps({ params }) {
       props: {
         artwork,
         relatedExhibitions
-      }
+      },
+      revalidate: 300
     };
   } catch (error) {
     console.error('getStaticProps 오류:', error);

@@ -390,7 +390,7 @@ export async function getStaticPaths() {
       paths: slugs.map(slug => ({
         params: { slug }
       })),
-      fallback: false // 'blocking'에서 false로 변경 (정적 내보내기 필수)
+      fallback: 'blocking'
     };
   } catch (error) {
     console.error('getStaticPaths 오류:', error);
@@ -420,7 +420,8 @@ export async function getStaticProps({ params }) {
         exhibition,
         relatedTexts: secondaryData.relatedTexts || [],
         artworks: secondaryData.artworks || []
-      }
+      },
+      revalidate: 300
     };
   } catch (error) {
     console.error('getStaticProps 오류:', error);

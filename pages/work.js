@@ -455,7 +455,8 @@ export async function getStaticProps() {
         exhibitions,
         timelines,
         timelineImageMap
-      }
+      },
+      revalidate: 300
     };
   } catch (error) {
     console.error('Work 데이터 로드 오류:', error);
