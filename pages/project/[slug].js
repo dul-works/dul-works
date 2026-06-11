@@ -20,7 +20,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
   const [isVerticalDragging, setIsVerticalDragging] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = React.useRef(null);
-  const videoRefs = React.useRef({}); // 모든 영상 요소의 ref 저장
+-  const videoRefs = React.useRef({}); // 모든 영상 요소의 ref 저장
 
   if (!project) {
     return (
