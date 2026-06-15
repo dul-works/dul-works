@@ -429,7 +429,7 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const { getWORKDataServer, getARTWORKDataServer } = await import('../lib/notion-api-server');
     const { processWorkData } = await import('../lib/work-processor');
@@ -456,7 +456,6 @@ export async function getStaticProps() {
         timelines,
         timelineImageMap
       },
-      revalidate: 300
     };
   } catch (error) {
     console.error('Work 데이터 로드 오류:', error);

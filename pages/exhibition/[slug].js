@@ -382,26 +382,8 @@ export default function ExhibitionDetail({ exhibition, relatedTexts = [], artwor
   );
 }
 
-export async function getStaticPaths() {
-  try {
-    const slugs = await getAllExhibitionSlugs();
 
-    return {
-      paths: slugs.map(slug => ({
-        params: { slug }
-      })),
-      fallback: 'blocking'
-    };
-  } catch (error) {
-    console.error('getStaticPaths 오류:', error);
-    return {
-      paths: [],
-      fallback: false
-    };
-  }
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   try {
     // Basic 데이터
     const exhibition = await getExhibitionBasicBySlug(params.slug);
@@ -421,7 +403,6 @@ export async function getStaticProps({ params }) {
         relatedTexts: secondaryData.relatedTexts || [],
         artworks: secondaryData.artworks || []
       },
-      revalidate: 300
     };
   } catch (error) {
     console.error('getStaticProps 오류:', error);

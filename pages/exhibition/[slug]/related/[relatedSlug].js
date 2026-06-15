@@ -65,49 +65,8 @@ export default function ExhibitionRelatedText({ exhibition, relatedText, related
   );
 }
 
-export async function getStaticPaths() {
-  try {
-    const exhibitionSlugs = await getAllExhibitionSlugs();
-    const paths = [];
 
-    // 각 전시의 Related Text들을 가져와서 경로 생성
-    for (const slug of exhibitionSlugs) {
-      try {
-        // getStaticPaths에서는 Basic 데이터만 있어도 Related Text 정보 추출 가능 (Secondary Data 사용)
-        const { relatedTexts } = await getExhibitionSecondaryData(slug);
-        if (relatedTexts && relatedTexts.length > 0) {
-          for (const relatedText of relatedTexts) {
-            const relatedSlug = createSlug(relatedText.title);
-            paths.push({
-              params: {
-                slug: slug,
-                relatedSlug: relatedSlug
-              }
-            });
-          }
-        }
-      } catch (innerError) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error(`[RelatedText] 전시 "${slug}" 처리 중 오류:`, innerError);
-        }
-      }
-    }
-    return {
-      paths,
-      fallback: 'blocking'
-    };
-  } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[RelatedText] getStaticPaths 전체 오류:', error);
-    }
-    return {
-      paths: [],
-      fallback: 'blocking'
-    };
-  }
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   try {
 
     // 2026-01-17 Optimized: Use getExhibitionBySlug(..., false) to fetch everything in one pass
@@ -151,7 +110,6 @@ export async function getStaticProps({ params }) {
         },
         relatedTextSlug: params.relatedSlug
       },
-      revalidate: 300
     };
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

@@ -358,26 +358,8 @@ export default function ArtworkDetail({ artwork, relatedExhibitions }) {
   );
 }
 
-export async function getStaticPaths() {
-  try {
-    const slugs = await getAllArtworkSlugs();
 
-    return {
-      paths: slugs.map(slug => ({
-        params: { slug }
-      })),
-      fallback: 'blocking'
-    };
-  } catch (error) {
-    console.error('getStaticPaths 오류:', error);
-    return {
-      paths: [],
-      fallback: false
-    };
-  }
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   try {
     const artwork = await getArtworkBySlug(params.slug);
 
@@ -420,7 +402,6 @@ export async function getStaticProps({ params }) {
         artwork,
         relatedExhibitions
       },
-      revalidate: 300
     };
   } catch (error) {
     console.error('getStaticProps 오류:', error);

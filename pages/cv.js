@@ -19,7 +19,7 @@ export default function CV({ classGroups, sortedClasses }) {
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const cvData = await getCVDataServer();
     const { classGroups, sortedClasses } = groupCVDataByClass(cvData);
@@ -29,7 +29,6 @@ export async function getStaticProps() {
         classGroups,
         sortedClasses
       },
-      revalidate: 300
     };
   } catch (error) {
     console.error('CV 데이터 로드 오류:', error);

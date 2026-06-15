@@ -1145,42 +1145,8 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
   );
 }
 
-export async function getStaticPaths() {
-  // 1. 정적 데이터의 slug 가져오기
-  const staticSlugs = getAllProjectSlugs();
 
-  try {
-    // 2. Notion 데이터의 slug 가져오기
-    const { getWORKDataServer } = await import('../../lib/notion-api-server');
-    const { processWorkData } = await import('../../lib/work-processor');
-    const { createSlug } = await import('../../lib/slug-utils');
-
-    const workData = await getWORKDataServer();
-    const projects = processWorkData(workData);
-    const notionSlugs = projects.map(p => createSlug(p.name)).filter(Boolean);
-
-    // 중복 제거 후 합치기
-    const allSlugs = [...new Set([...staticSlugs, ...notionSlugs])];
-
-    return {
-      paths: allSlugs.map(slug => ({
-        params: { slug }
-      })),
-      fallback: 'blocking'
-    };
-  } catch (error) {
-    console.error('getStaticPaths 오류:', error);
-    // 오류 발생 시 정적 데이터만이라도 제공
-    return {
-      paths: staticSlugs.map(slug => ({
-        params: { slug }
-      })),
-      fallback: false
-    };
-  }
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   let project = getProjectBySlug(params.slug);
 
   // 정적 데이터에 없는 경우 Notion에서 검색
@@ -1266,6 +1232,5 @@ export async function getStaticProps({ params }) {
       slug: params.slug,
       newbornArtworks: artworks
     },
-    revalidate: 300
   };
 }

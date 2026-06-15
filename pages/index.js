@@ -131,7 +131,7 @@ export default function Home({ artistStatement, currentExhibitions, currentProje
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const { getAllNotionDataServer, getARTWORKDataServer } = await import('@/lib/notion-api-server');
 
@@ -157,7 +157,6 @@ export async function getStaticProps() {
         currentExhibitions,
         currentProjects
       },
-      revalidate: 300
     };
   } catch (error) {
     console.error('데이터 로드 오류:', error);
