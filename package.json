@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "download-images": "node scripts/download-images.js",
-    "prebuild": "npm run download-images"
+    "download-images": "node scripts/download-images.js"
   },
   "keywords": [],
   "author": "",
