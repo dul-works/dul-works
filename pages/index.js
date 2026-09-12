@@ -1,15 +1,14 @@
-import Head from 'next/head';
 import { Fragment } from 'react';
 import Link from 'next/link';
 import NoiseEraser from '@/components/NoiseEraser';
 import Layout from '@/components/Layout';
 import ExhibitionItem from '@/components/ExhibitionItem';
-import { getAllNotionDataServer } from '@/lib/notion-api-server';
+import { getWORKDataServer } from '@/lib/notion-api-server';
 import { getArtistStatement, processWorkData } from '@/lib/work-processor';
 import { processExhibitionData } from '@/lib/exhibition-processor';
 import { createSlug } from '@/lib/slug-utils';
 
-export default function Home({ artistStatement, currentExhibitions, currentProjects, artworkMap }) {
+export default function Home({ artistStatement, currentExhibitions, currentProjects }) {
   const renderContent = (blocks) => {
     if (!blocks || blocks.length === 0) return null;
 
@@ -133,13 +132,8 @@ export default function Home({ artistStatement, currentExhibitions, currentProje
 
 export async function getServerSideProps() {
   try {
-    const { getAllNotionDataServer, getARTWORKDataServer } = await import('@/lib/notion-api-server');
-
-    // 병렬로 데이터 로드
-    const [{ WORK }, artworkData] = await Promise.all([
-      getAllNotionDataServer(),
-      getARTWORKDataServer()
-    ]);
+    // 홈은 WORK DB만 사용하므로 다른 DB는 호출하지 않음
+    const WORK = await getWORKDataServer();
 
     // Work 데이터 처리
     const artistStatement = await getArtistStatement(WORK);
@@ -164,8 +158,7 @@ export async function getServerSideProps() {
       props: {
         artistStatement: [],
         currentExhibitions: [],
-        currentProjects: [],
-        artworkMap: {}
+        currentProjects: []
       }
     };
   }

@@ -1,7 +1,7 @@
 import Layout from '../../components/Layout';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { getExhibitionBasicBySlug, getAllExhibitionSlugs, getExhibitionSecondaryData } from '../../lib/exhibition-detail-processor';
+import { getExhibitionBasicBySlug, getExhibitionSecondaryData } from '../../lib/exhibition-detail-processor';
 import { createSlug } from '../../lib/slug-utils';
 import Link from 'next/link';
 
@@ -25,8 +25,6 @@ export default function ExhibitionDetail({ exhibition, relatedTexts = [], artwor
   // 이미지를 열별로 그룹화
   const column1Images = (exhibition.images || []).filter(img => img.column === 1);
   const column2Images = (exhibition.images || []).filter(img => img.column === 2);
-  // 2열 레이아웃을 위해 모든 이미지 합치기
-  const allImages = [...column1Images, ...column2Images];
 
   // 3번째 열에 이미지가 없으면 2번째 열 이미지가 2, 3번 열을 합친 크기로 표시
   const hasColumn2Images = column2Images.length > 0;

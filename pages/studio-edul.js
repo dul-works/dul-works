@@ -1,6 +1,4 @@
-import Head from 'next/head';
 import Layout from '../components/Layout';
-import styles from '../styles/StudioEdul.module.css';
 
 export default function StudioEdul() {
   return (

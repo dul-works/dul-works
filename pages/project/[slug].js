@@ -5,9 +5,6 @@ import { getProjectBySlug, getAllProjectSlugs } from '../../lib/project-data';
 import ImageWithOverlay from '../../components/ImageWithOverlay';
 
 export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
-  // basePath를 동적으로 가져오기 (프로덕션에서는 '/dul-works', 개발에서는 '')
-  // next.config.js의 basePath 설정과 일치시킴
-  const basePath = process.env.NODE_ENV === 'production' ? '/dul-works' : '';
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const [pinModal, setPinModal] = useState({ open: false, title: '', coord: '' });
@@ -253,7 +250,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
         }
       });
     };
-  }, [basePath]); // basePath가 변경되면 다시 초기화
+  }, []);
 
   // Google Maps 스크립트 로드 및 초기화
   useEffect(() => {
@@ -635,7 +632,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                                               backgroundColor: 'transparent'
                                             }}
                                           >
-                                            <source src={`${basePath}/assets/videos/directional_mel_${String(videoIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
+                                            <source src={`/assets/videos/directional_mel_${String(videoIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
                                           </video>
                                         );
                                       })}
@@ -654,7 +651,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                                   playsInline
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 >
-                                  <source src={`${basePath}/assets/videos/rgba_mel.mp4`} type="video/mp4" />
+                                  <source src={`/assets/videos/rgba_mel.mp4`} type="video/mp4" />
                                 </video>
                               </div>
                               <div

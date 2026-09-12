@@ -2,12 +2,11 @@ import Layout from '../../components/Layout';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { getArtworkBySlug, getAllArtworkSlugs } from '../../lib/artwork-detail-processor';
+import { getArtworkBySlug } from '../../lib/artwork-detail-processor';
 import { createSlug } from '../../lib/slug-utils';
 
 
 export default function ArtworkDetail({ artwork, relatedExhibitions }) {
-  const basePath = process.env.NODE_ENV === 'production' ? '/dul-works' : '';
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -25,8 +24,6 @@ export default function ArtworkDetail({ artwork, relatedExhibitions }) {
   // 이미지를 열별로 그룹화
   const column1Images = (artwork.images || []).filter(img => img.column === 1);
   const column2Images = (artwork.images || []).filter(img => img.column === 2);
-  // 2열 레이아웃을 위해 모든 이미지 합치기
-  const allImages = [...column1Images, ...column2Images];
 
   // 두 번째 열에 이미지가 없으면 첫 번째 열 이미지가 첫 번째, 두 번째 열을 모두 차지하도록 표시
   const hasColumn2Images = column2Images.length > 0;
@@ -318,7 +315,7 @@ export default function ArtworkDetail({ artwork, relatedExhibitions }) {
                 aria-label="이전 이미지"
               >
                 <Image
-                  src={`${basePath}/assets/icons/arrow_back.svg`}
+                  src="/assets/icons/arrow_back.svg"
                   alt="이전"
                   width={24}
                   height={24}
@@ -330,7 +327,7 @@ export default function ArtworkDetail({ artwork, relatedExhibitions }) {
                 aria-label="다음 이미지"
               >
                 <Image
-                  src={`${basePath}/assets/icons/arrow_forward.svg`}
+                  src="/assets/icons/arrow_forward.svg"
                   alt="다음"
                   width={24}
                   height={24}
@@ -372,9 +369,9 @@ export async function getServerSideProps({ params }) {
     // 관련 전시 데이터 가져오기
     let relatedExhibitions = [];
     if (artwork.exhibitionIds && artwork.exhibitionIds.length > 0) {
-      // 모든 WORK 데이터 로드 (Exhibition 찾기 위해)
-      const { getAllNotionDataServer } = await import('../../lib/notion-api-server');
-      const { WORK } = await getAllNotionDataServer();
+      // WORK 데이터 로드 (Exhibition 찾기 위해)
+      const { getWORKDataServer } = await import('../../lib/notion-api-server');
+      const WORK = await getWORKDataServer();
       const { extractExhibitionData } = await import('../../lib/exhibition-processor');
 
       // 모든 연결된 전시 찾기 (Promise.all로 병렬 처리)

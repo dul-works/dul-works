@@ -1,10 +1,8 @@
 import Layout from '../../../../components/Layout';
-import { getExhibitionBySlug, getExhibitionSecondaryData, getAllExhibitionSlugs, getRelatedTextPage } from '../../../../lib/exhibition-detail-processor';
+import { getExhibitionBySlug, getRelatedTextPage } from '../../../../lib/exhibition-detail-processor';
 import { createSlug } from '../../../../lib/slug-utils';
 
 export default function ExhibitionRelatedText({ exhibition, relatedText, relatedTextSlug }) {
-  const basePath = process.env.NODE_ENV === 'production' ? '/dul-works' : '';
-
   if (!exhibition || !relatedText) {
     return (
       <Layout title="Portfolio - Related Text">
@@ -21,7 +19,7 @@ export default function ExhibitionRelatedText({ exhibition, relatedText, related
         {relatedText.contentType === 'file' && relatedText.fileName ? (
           <div className="pdf-container" style={{ width: '100%', height: '80vh' }}>
             <embed
-              src={`${basePath}/assets/pdf/${encodeURIComponent(relatedText.fileName.endsWith('.pdf') ? relatedText.fileName : relatedText.fileName + '.pdf')}`}
+              src={`/assets/pdf/${encodeURIComponent(relatedText.fileName.endsWith('.pdf') ? relatedText.fileName : relatedText.fileName + '.pdf')}`}
               type="application/pdf"
               width="100%"
               height="100%"
