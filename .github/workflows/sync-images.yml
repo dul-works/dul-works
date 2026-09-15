@@ -1,0 +1,40 @@
+# Notion 이미지를 Cloudflare R2와 동기화 (새 이미지 업로드, 사라진 이미지 삭제)
+# - dev에 푸시할 때마다 실행
+# - schedule / workflow_dispatch는 GitHub 규칙상 이 파일이 기본 브랜치(main)에 있을 때부터 동작
+name: Sync Notion images to R2
+
+on:
+  push:
+    branches: [dev]
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-images
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run sync-images-to-r2
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DB_WORK: ${{ secrets.NOTION_DB_WORK }}
+          NOTION_DB_ARTWORK: ${{ secrets.NOTION_DB_ARTWORK }}
+          NOTION_DB_RELATED: ${{ secrets.NOTION_DB_RELATED }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
