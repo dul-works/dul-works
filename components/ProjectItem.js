@@ -2,9 +2,6 @@ import ImageWithOverlay from './ImageWithOverlay';
 import Link from 'next/link';
 import { createSlug } from '@/lib/slug-utils';
 
-// '열,행'(열은 1 또는 2) 또는 'full'만 배치 가능. 그 외 값은 Index 없음처럼 왼쪽 열에 붙인다
-const PLACEABLE_INDEX = /^(full$|[12]\s*,\s*\d)/i;
-
 export default function ProjectItem({ project, artworkImages, isFirstProject = false }) {
   const { name, period, description, index } = project;
   const slug = name ? createSlug(name) : null;
@@ -49,7 +46,7 @@ export default function ProjectItem({ project, artworkImages, isFirstProject = f
       const shouldHavePriority = isFirstProject && imageCount < 3;
       imageCount++;
 
-      if (!imageData.index || !PLACEABLE_INDEX.test(imageData.index.toString().trim())) {
+      if (!imageData.index) {
         // Index가 없는 이미지는 왼쪽 열에 순서대로 추가
         columnArrays[1].push(
           <ImageWithOverlay
