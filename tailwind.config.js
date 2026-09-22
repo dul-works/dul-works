@@ -3,7 +3,6 @@ module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
-    './app/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -13,11 +12,6 @@ module.exports = {
       },
       maxWidth: {
         'container': '1440px',
-        'column': '595px',
-      },
-      spacing: {
-        'column-gap': '10px',
-        'full-image': 'calc(595px * 2 + 10px)',
       },
     },
   },

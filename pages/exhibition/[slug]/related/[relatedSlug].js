@@ -1,16 +1,9 @@
 import Layout from '../../../../components/Layout';
 import { getExhibitionBySlug, getRelatedTextPage } from '../../../../lib/exhibition-detail-processor';
 import { createSlug } from '../../../../lib/slug-utils';
+import RichParagraphs from '../../../../components/RichParagraphs';
 
-export default function ExhibitionRelatedText({ exhibition, relatedText, relatedTextSlug }) {
-  if (!exhibition || !relatedText) {
-    return (
-      <Layout title="Portfolio - Related Text">
-        <div>관련 텍스트를 찾을 수 없습니다.</div>
-      </Layout>
-    );
-  }
-
+export default function ExhibitionRelatedText({ relatedText }) {
   return (
     <Layout title={`Portfolio - ${relatedText.title || 'Related Text'}`}>
       <div className="related-text-page-container">
@@ -29,29 +22,7 @@ export default function ExhibitionRelatedText({ exhibition, relatedText, related
           relatedText.content && (
             <div className="related-text-page-content">
               {Array.isArray(relatedText.content) ? (
-                relatedText.content.map((paragraph, idx) => {
-                  if (paragraph === null) {
-                    return <div key={idx} className="artwork-detail-paragraph-break"></div>;
-                  }
-
-                  if (Array.isArray(paragraph)) {
-                    return (
-                      <p key={idx} className="artwork-detail-paragraph">
-                        {paragraph.map((textItem, textIdx) => {
-                          const text = textItem.plain_text || '';
-                          const annotations = textItem.annotations || {};
-
-                          if (annotations.bold) {
-                            return <strong key={textIdx}>{text}</strong>;
-                          }
-                          return text;
-                        })}
-                      </p>
-                    );
-                  }
-
-                  return <p key={idx} className="artwork-detail-paragraph">{paragraph}</p>;
-                })
+                <RichParagraphs paragraphs={relatedText.content} />
               ) : (
                 <div>{relatedText.content}</div>
               )}
@@ -66,9 +37,6 @@ export default function ExhibitionRelatedText({ exhibition, relatedText, related
 
 export async function getServerSideProps({ params }) {
   try {
-
-    // 2026-01-17 Optimized: Use getExhibitionBySlug(..., false) to fetch everything in one pass
-    // This replaces the previous Promise.all([basic, secondary]) approach using data reuse.
     const exhibition = await getExhibitionBySlug(params.slug, false);
 
     if (!exhibition) {
@@ -89,7 +57,6 @@ export async function getServerSideProps({ params }) {
     if (!relatedText) {
       if (process.env.NODE_ENV === 'development') {
         console.error(`[RelatedText] 관련 텍스트를 찾을 수 없음: ${params.relatedSlug} in ${params.slug}`);
-        console.log(`[RelatedText] 사용 가능한 관련 텍스트:`, exhibition.relatedTexts?.map(rt => createSlug(rt.title)));
       }
       return {
         notFound: true
@@ -101,17 +68,15 @@ export async function getServerSideProps({ params }) {
 
     return {
       props: {
-        exhibition,
         relatedText: {
           ...relatedText,
           content: relatedTextContent?.content || []
-        },
-        relatedTextSlug: params.relatedSlug
+        }
       },
     };
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.error(`[RelatedText] getStaticProps 오류 (${params.slug}/${params.relatedSlug}):`, error);
+      console.error(`[RelatedText] getServerSideProps 오류 (${params.slug}/${params.relatedSlug}):`, error);
     }
     return {
       notFound: true

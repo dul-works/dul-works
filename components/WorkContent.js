@@ -69,17 +69,8 @@ export default function WorkContent({ view, projects, artworkMap, exhibitions, t
     groupExhibitions.sort(sortByIndex);
 
     // Index에 따라 좌우 번갈아가면서 배치 (Desktop Logic)
-    const soloColumnArrays = {
-      1: [],
-      2: []
-    };
-    const groupColumnArrays = {
-      1: [],
-      2: []
-    };
-
-    // Helper to determine column
-    const addToColumnArrays = (collection, arrays, isFirstCollection = false) => {
+    const toColumnArrays = (collection, isFirstCollection) => {
+      const arrays = { 1: [], 2: [] };
       collection.forEach((exhibition, idx) => {
         const indexStr = String(exhibition.index).trim();
         const isFull = indexStr.toLowerCase() === 'full';
@@ -108,68 +99,47 @@ export default function WorkContent({ view, projects, artworkMap, exhibitions, t
           targetCol = val % 2 === 1 ? 1 : 2;
         }
 
-        // If 'full', it defaults to column 1 in desktop view (as strictly requested for desktop logic not specified for full)
-        // But user said "1024 미만일 때 index를 full로..." implying full only special on mobile?
-        // If full on desktop should be full width, we need separate logic, but assuming col 1 for now or 
-        // if user wants it spanning 2 cols, that's a bigger change. 
-        // Given current constraints, placing in col 1 is safe.
-
+        // 'full'은 데스크톱에서 1열에 배치
         arrays[targetCol].push(exhibitionItem);
       });
+      return arrays;
     };
 
-    addToColumnArrays(soloExhibitions, soloColumnArrays, true);
-    addToColumnArrays(groupExhibitions, groupColumnArrays, false);
+    const groups = [
+      { key: 'solo', className: 'exhibition-solo-group', items: soloExhibitions, isFirst: true },
+      { key: 'group', className: 'exhibition-group-group', items: groupExhibitions, isFirst: false },
+    ];
 
     return (
       <div id="content-area">
-        {/* SOLO EXHIBITION 그룹 */}
-        <div className="exhibition-solo-group">
-          {/* Desktop View (2 Columns) */}
-          <div className="desktop-view columns-container">
-            <div className="column">
-              {soloColumnArrays[1]}
+        {/* SOLO / GROUP EXHIBITION 그룹 */}
+        {groups.map(({ key, className, items, isFirst }) => {
+          const columnArrays = toColumnArrays(items, isFirst);
+          return (
+            <div key={key} className={className}>
+              {/* Desktop View (2 Columns) */}
+              <div className="desktop-view columns-container">
+                <div className="column">
+                  {columnArrays[1]}
+                </div>
+                <div className="column">
+                  {columnArrays[2]}
+                </div>
+              </div>
+              {/* Mobile View (1 Column Sorted) */}
+              <div className="mobile-view project-list-single">
+                {items.map((exhibition, idx) => (
+                  <ExhibitionItem
+                    key={`${key}-mobile-${exhibition.name || idx}`}
+                    exhibition={exhibition}
+                    isFull={String(exhibition.index || '').trim().toLowerCase() === 'full'}
+                    priority={isFirst && idx === 0}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="column">
-              {soloColumnArrays[2]}
-            </div>
-          </div>
-          {/* Mobile View (1 Column Sorted) */}
-          <div className="mobile-view project-list-single">
-            {soloExhibitions.map((exhibition, idx) => (
-              <ExhibitionItem
-                key={`solo-mobile-${exhibition.name || idx}`}
-                exhibition={exhibition}
-                isFull={String(exhibition.index || '').trim().toLowerCase() === 'full'}
-                priority={idx === 0}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* GROUP EXHIBITION 그룹 */}
-        <div className="exhibition-group-group">
-          {/* Desktop View (2 Columns) */}
-          <div className="desktop-view columns-container">
-            <div className="column">
-              {groupColumnArrays[1]}
-            </div>
-            <div className="column">
-              {groupColumnArrays[2]}
-            </div>
-          </div>
-          {/* Mobile View (1 Column Sorted) */}
-          <div className="mobile-view project-list-single">
-            {groupExhibitions.map((exhibition, idx) => (
-              <ExhibitionItem
-                key={`group-mobile-${exhibition.name || idx}`}
-                exhibition={exhibition}
-                isFull={String(exhibition.index || '').trim().toLowerCase() === 'full'}
-                priority={false}
-              />
-            ))}
-          </div>
-        </div>
+          );
+        })}
       </div>
     );
   } else if (view === 'timeline') {

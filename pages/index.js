@@ -1,6 +1,5 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
-import NoiseEraser from '@/components/NoiseEraser';
 import Layout from '@/components/Layout';
 import ExhibitionItem from '@/components/ExhibitionItem';
 import { getWORKDataServer } from '@/lib/notion-api-server';
@@ -77,54 +76,52 @@ export default function Home({ artistStatement, currentExhibitions, currentProje
   return (
     <Layout title="Portfolio - Home">
       <div id="content-area">
-        <NoiseEraser>
-          <div className="description-box" style={{ borderLeft: 'none', paddingLeft: 0, width: '100%' }}>
-            {renderContent(artistStatement)}
-          </div>
+        <div className="description-box" style={{ borderLeft: 'none', paddingLeft: 0, width: '100%' }}>
+          {renderContent(artistStatement)}
+        </div>
 
-          <div className="columns-container home-columns" style={{ marginTop: '50px' }}>
-            <div className="column">
-              <h3 style={{ marginBottom: '15px' }}>CURRENT EXHIBITION</h3>
-              {currentExhibitions && currentExhibitions.length > 0 ? (
-                currentExhibitions.map((exhibition, idx) => (
-                  <ExhibitionItem
-                    key={exhibition.name || idx}
-                    exhibition={exhibition}
-                    isFull={false} // Home page columns are split, so stick to standard width
-                    priority={idx === 0}
-                  />
-                ))
-              ) : (
-                <p className="artwork-detail-paragraph" style={{ opacity: 0.3 }}>No current exhibition.</p>
-              )}
-            </div>
-            <div className="column">
-              <h3 style={{ marginBottom: '15px' }}>CURRENT PROJECT</h3>
-              {currentProjects && currentProjects.length > 0 ? (
-                currentProjects.map((project, idx) => {
-                  const slug = project.name ? createSlug(project.name) : null;
-                  const { name, period, description } = project;
-
-                  return (
-                    <Link key={project.name || idx} href={slug ? `/project/${slug}` : '#'} className="project-link" style={{ marginBottom: '50px' }}>
-                      <h2 className="project-item arrow-animated-link">{name}</h2>
-                      {((period) || (description)) && (
-                        <div className="description-box">
-                          {period && <div className="project-period">{period}</div>}
-                          {description && description.split('\n').map((line, i) => (
-                            <p key={i} className="artwork-detail-paragraph">{line}</p>
-                          ))}
-                        </div>
-                      )}
-                    </Link>
-                  );
-                })
-              ) : (
-                <p className="artwork-detail-paragraph" style={{ opacity: 0.3 }}>No current project.</p>
-              )}
-            </div>
+        <div className="columns-container home-columns" style={{ marginTop: '50px' }}>
+          <div className="column">
+            <h3 style={{ marginBottom: '15px' }}>CURRENT EXHIBITION</h3>
+            {currentExhibitions && currentExhibitions.length > 0 ? (
+              currentExhibitions.map((exhibition, idx) => (
+                <ExhibitionItem
+                  key={exhibition.name || idx}
+                  exhibition={exhibition}
+                  isFull={false} // Home page columns are split, so stick to standard width
+                  priority={idx === 0}
+                />
+              ))
+            ) : (
+              <p className="artwork-detail-paragraph" style={{ opacity: 0.3 }}>No current exhibition.</p>
+            )}
           </div>
-        </NoiseEraser>
+          <div className="column">
+            <h3 style={{ marginBottom: '15px' }}>CURRENT PROJECT</h3>
+            {currentProjects && currentProjects.length > 0 ? (
+              currentProjects.map((project, idx) => {
+                const slug = project.name ? createSlug(project.name) : null;
+                const { name, period, description } = project;
+
+                return (
+                  <Link key={project.name || idx} href={slug ? `/project/${slug}` : '#'} className="project-link" style={{ marginBottom: '50px' }}>
+                    <h2 className="project-item arrow-animated-link">{name}</h2>
+                    {((period) || (description)) && (
+                      <div className="description-box">
+                        {period && <div className="project-period">{period}</div>}
+                        {description && description.split('\n').map((line, i) => (
+                          <p key={i} className="artwork-detail-paragraph">{line}</p>
+                        ))}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })
+            ) : (
+              <p className="artwork-detail-paragraph" style={{ opacity: 0.3 }}>No current project.</p>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );

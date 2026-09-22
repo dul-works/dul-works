@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createSlug } from '@/lib/slug-utils';
 
+const EXHIBITION_TYPE_TEXT = {
+  'SOLO EXHIBITION': 'Solo Exhibition',
+  'GROUP EXHIBITION': 'Group Exhibition',
+};
+
 export default function ExhibitionItem({ exhibition, isFull, priority = false }) {
-  const { name, period, description, imageUrl, index, classType } = exhibition;
+  const { name, period, description, imageUrl, classType } = exhibition;
   const slug = name ? createSlug(name) : null;
-
-  // Exhibition 타입 텍스트 생성
-  const getExhibitionTypeText = () => {
-    if (classType === 'SOLO EXHIBITION') {
-      return 'Solo Exhibition';
-    } else if (classType === 'GROUP EXHIBITION') {
-      return 'Group Exhibition';
-    }
-    return '';
-  };
-
-  const exhibitionTypeText = getExhibitionTypeText();
+  const exhibitionTypeText = EXHIBITION_TYPE_TEXT[classType] || '';
 
   // Exhibition 텍스트와 이미지 콘텐츠 생성
   const periodHtml = period ? <div className="exhibition-period">{period}</div> : '';
@@ -45,7 +38,6 @@ export default function ExhibitionItem({ exhibition, isFull, priority = false })
               width={595}
               height={400}
               className="project-image exhibition-image"
-              loading={priority ? undefined : "lazy"}
               priority={priority}
               quality={90}
               sizes="595px"

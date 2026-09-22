@@ -1,6 +1,5 @@
 import Layout from '../components/Layout';
 import ContactIcon from '../components/ContactIcon';
-import Link from 'next/link';
 
 export default function Contact() {
   const contacts = [
@@ -43,15 +42,14 @@ export default function Contact() {
         <div className="contact-links-column">
           {contacts.map((contact) => (
             <div key={contact.name} className="contact-link-item">
-              {contact.isLink ? (
-                <Link href={contact.href} target="_blank" rel="noopener noreferrer" className="contact-link">
-                  {contact.text}
-                </Link>
-              ) : (
-                <a href={contact.href} className="contact-link">
-                  {contact.text}
-                </a>
-              )}
+              <a
+                href={contact.href}
+                target={contact.isLink ? '_blank' : undefined}
+                rel={contact.isLink ? 'noopener noreferrer' : undefined}
+                className="contact-link"
+              >
+                {contact.text}
+              </a>
             </div>
           ))}
         </div>

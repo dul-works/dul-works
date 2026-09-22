@@ -12,12 +12,10 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
   const [isMobile, setIsMobile] = useState(false);
   const [containerHeight, setContainerHeight] = useState('auto');
   const contentRef = useRef(null);
-  const containerRef = useRef(null);
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
   const isScrolling = useRef(false);
   const isSwipingRef = useRef(false); // 이벤트 핸들러에서 동기적으로 읽기 위한 ref
-  const currentTranslateX = useRef(0);
   const viewRefs = useRef({});
 
   // URL 쿼리에 따른 뷰 모드 설정 (뒤로 가기 대응)
@@ -75,7 +73,6 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
         // 유효하지 않은 인덱스면 프로젝트 뷰로 고정
         const safeTranslateX = 0;
         setTranslateX(safeTranslateX);
-        currentTranslateX.current = safeTranslateX;
         return;
       }
       
@@ -87,7 +84,6 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
       const absoluteMax = 0; // 0%
       const safeTranslateX = Math.max(absoluteMin, Math.min(absoluteMax, newTranslateX));
       setTranslateX(safeTranslateX);
-      currentTranslateX.current = safeTranslateX;
     }
   }, [currentView, isSwiping]);
 
@@ -150,11 +146,6 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
       isScrolling.current = false;
       isSwipingRef.current = false;
       setIsSwiping(false);
-      
-      // 현재 위치를 기준으로 설정
-      const currentIndex = getViewIndex(currentView);
-      const viewWidthPercent = 100 / viewOrder.length; // 33.33%
-      currentTranslateX.current = -currentIndex * viewWidthPercent;
     };
 
     const handleTouchMove = (e) => {
@@ -299,7 +290,6 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
           const safeTranslateX = Math.max(absoluteMin, Math.min(absoluteMax, targetTranslateX));
           
           setTranslateX(safeTranslateX);
-          currentTranslateX.current = safeTranslateX;
           
           // 그 다음 뷰 변경
           handleViewChange(nextView);
@@ -308,14 +298,12 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
           const originalTranslateX = -currentIndex * viewWidthPercent;
           const safeTranslateX = Math.max(absoluteMin, Math.min(absoluteMax, originalTranslateX));
           setTranslateX(safeTranslateX);
-          currentTranslateX.current = safeTranslateX;
         }
       } else {
         // 충분히 이동하지 않았으면 원래 위치로
         const originalTranslateX = -currentIndex * viewWidthPercent;
         const safeTranslateX = Math.max(absoluteMin, Math.min(absoluteMax, originalTranslateX));
         setTranslateX(safeTranslateX);
-        currentTranslateX.current = safeTranslateX;
       }
       
       touchStartX.current = null;
@@ -369,7 +357,6 @@ export default function Work({ projects, artworkMap, exhibitions, timelines, tim
           </div>
           <div ref={contentRef} style={{ overflow: 'hidden', width: '100%', position: 'relative', height: containerHeight }}>
             <div
-              ref={containerRef}
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',

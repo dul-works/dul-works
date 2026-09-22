@@ -1,13 +1,61 @@
 import Layout from '../../components/Layout';
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { getProjectBySlug, getAllProjectSlugs } from '../../lib/project-data';
+import { getProjectBySlug } from '../../lib/project-data';
 import ImageWithOverlay from '../../components/ImageWithOverlay';
 
+// 기술 버전 이력 (TECHNICAL PROCESS)
+const versions = [
+  {
+    year: '2023',
+    title: 'Version 1.x',
+    columns: [
+      { label: 'Data Collection', items: ['4x Action Cameras (Panoramic Setup)', 'Ambisonic Audio Recorder'] },
+      { label: 'AI Model', items: ['Base : pix2pix', 'Dataset : Small Scale'] },
+    ],
+    description: "As the project's initial iteration, audiovisual data was collected using four action cameras arranged in a panoramic configuration alongside an ambisonic spatial audio recorder. By training a pix2pix-based model on a limited dataset, this stage experimented with the feasibility of sound-to-image translation.",
+  },
+  {
+    year: '2024',
+    title: 'Version 2.0.x',
+    columns: [
+      { label: 'Data Collection', items: ['360° Camera', 'Ambisonic Audio Recorder'] },
+      { label: 'AI Model', items: ['Base : pix2pix', 'Dataset : Expanded'] },
+    ],
+    description: 'The utilization of a 360-degree camera enabled the acquisition of spatial data where image and sound are more seamlessly integrated. This version leveraged a significantly expanded dataset for training compared to the previous iteration.',
+  },
+  {
+    year: '2025 - Now',
+    title: 'Version 2.1.x',
+    active: true,
+    columns: [
+      { label: 'Data Collection', items: ['360° Camera', 'Ambisonic Audio Recorder'] },
+      { label: 'AI Model', items: ['Base : Modified pix2pix', 'Dataset : Expanded'] },
+    ],
+    description: 'The pix2pix model was adapted to be optimized for training on 360-degree Equirectangular Images, accompanied by a fundamental restructuring of the input data format. By converting audio Mel Spectrograms into the equirectangular format for training, this version establishes a methodology that directly maps the auditory characteristics of sound onto spatial information.',
+  },
+  {
+    year: 'In Development',
+    title: 'Version 3.x',
+    columns: [
+      { label: 'Focus', items: ['Spatial Dimensionality'] },
+      { label: 'Approach', items: ['3D Scanning & 2D to 3D Conversion'] },
+    ],
+    description: "Focusing on spatial dimensionalization as a core objective, future research will explore methods to convey the sound-generated 'Newborn Space' with three-dimensional depth and volumetric presence.",
+  },
+];
+
+// 전처리 단계 (Current Approach v2.1.x)
+const approachSections = [
+  { title: 'Ambisonics Processing', items: ['Ambisonics A-format → B-format Conversion', 'Audio Normalization', 'Channel Alignment'] },
+  { title: 'Directional Audio Extraction', items: ['Extract Audio by Direction (0°~360°)', 'Spatial Audio Decomposition', 'Generate Directional Audio Signal'] },
+  { title: 'Mel-Spectrogram Conversion', items: ['Time-Frequency Transformation per Direction', 'Mel-scale Frequency Mapping', 'Generated Spectrograms for Each Direction'] },
+  { title: 'Spherical Coordinate Mapping', items: ['Map audio energy to spherical grid', 'Coordinates: (θ: Azimuth, φ: Elevation)', 'Energy distribution per direction'] },
+  { title: 'Frequency Layer Stacking', items: ['Divide into multiple frequency bands', 'Stack as multi-layer tensor', 'Each layer = Energy at one frequency band'] },
+];
+
 export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
-  const [sliderPosition, setSliderPosition] = useState(50);
-  const [isDragging, setIsDragging] = useState(false);
-  const [pinModal, setPinModal] = useState({ open: false, title: '', coord: '' });
+  const isNewbornSpace = slug === 'newborn-space';
   const [activeRegion, setActiveRegion] = useState('KR');
   const [imageSliderPosition, setImageSliderPosition] = useState(50);
   const [isImageDragging, setIsImageDragging] = useState(false);
@@ -15,57 +63,8 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
   const [isImageDragging2, setIsImageDragging2] = useState(false);
   const [verticalSliderPosition, setVerticalSliderPosition] = useState(50);
   const [isVerticalDragging, setIsVerticalDragging] = useState(false);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = React.useRef(null);
   const videoRefs = React.useRef({}); // 모든 영상 요소의 ref 저장
-
-  if (!project) {
-    return (
-      <Layout title="Portfolio - Project Detail">
-        <div>프로젝트를 찾을 수 없습니다.</div>
-      </Layout>
-    );
-  }
-
-  // 슬라이더 이벤트 핸들러
-  const handleSliderMove = (clientX) => {
-    const slider = document.getElementById('project-slider');
-    if (!slider) return;
-
-    const rect = slider.getBoundingClientRect();
-    let pos = clientX - rect.left;
-    if (pos < 0) pos = 0;
-    if (pos > rect.width) pos = rect.width;
-
-    const percent = (pos / rect.width) * 100;
-    setSliderPosition(percent);
-  };
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    handleSliderMove(e.clientX);
-  };
-
-  const handleMouseMove = (e) => {
-    if (isDragging) {
-      handleSliderMove(e.clientX);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging]);
 
   // Image slider handlers
   const handleImageSliderMove = (clientX) => {
@@ -183,12 +182,6 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
     handleVerticalSliderMove(e.clientY);
   };
 
-  const handleVerticalSliderClick = (e) => {
-    e.stopPropagation();
-    setIsVerticalDragging(true);
-    handleVerticalSliderMove(e.clientY);
-  };
-
   const handleVerticalMouseMove = (e) => {
     if (isVerticalDragging) {
       handleVerticalSliderMove(e.clientY);
@@ -217,44 +210,36 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
 
     let loadedCount = 0;
     const totalVideos = videos.length;
-    const startTime = Date.now();
 
     const handleCanPlay = () => {
       loadedCount++;
       if (loadedCount === totalVideos) {
         // 모든 영상이 로드되면 동시에 재생 시작
-        const loadTime = Date.now() - startTime;
         videos.forEach((video) => {
-          if (video) {
-            video.currentTime = 0; // 시작점으로 리셋
-            video.play().catch(() => {}); // 재생 시작
-          }
+          video.currentTime = 0; // 시작점으로 리셋
+          video.play().catch(() => {}); // 재생 시작
         });
       }
     };
 
     videos.forEach((video) => {
-      if (video) {
-        video.addEventListener('canplay', handleCanPlay);
-        // 이미 로드된 경우도 처리
-        if (video.readyState >= 3) {
-          handleCanPlay();
-        }
+      video.addEventListener('canplay', handleCanPlay);
+      // 이미 로드된 경우도 처리
+      if (video.readyState >= 3) {
+        handleCanPlay();
       }
     });
 
     return () => {
       videos.forEach((video) => {
-        if (video) {
-          video.removeEventListener('canplay', handleCanPlay);
-        }
+        video.removeEventListener('canplay', handleCanPlay);
       });
     };
   }, []);
 
-  // Google Maps 스크립트 로드 및 초기화
+  // Google Maps 스크립트 로드 및 초기화 (지도는 신생공 페이지에만 존재)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!isNewbornSpace) return;
 
     const initMap = () => {
       const mapContainer = document.getElementById('google-map-container');
@@ -320,15 +305,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
         document.head.appendChild(script);
       }
     }
-  }, []);
-
-  const openPin = (title, coord) => {
-    setPinModal({ open: true, title, coord });
-  };
-
-  const closePin = () => {
-    setPinModal({ open: false, title: '', coord: '' });
-  };
+  }, [isNewbornSpace]);
 
   // 국가별 좌표 설정
   const regionCoordinates = {
@@ -360,9 +337,6 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
       }
     }
   };
-
-  const { sections } = project;
-  const isNewbornSpace = slug === 'newborn-space';
 
   return (
     <Layout title={`Portfolio - ${project.name}`}>
@@ -420,111 +394,36 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                 </div>
               </section>
               <div className="project-detail-newborn-versions-wrapper">
-                <div className="project-detail-newborn-version-item">
-                  <div className="project-detail-newborn-version-year">2023</div>
-                  <div className="project-detail-newborn-version-content">
-                    <h3 className="project-detail-newborn-version">Version 1.x</h3>
-                    <div className="project-detail-newborn-version-details">
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">Data Collection</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>4x Action Cameras (Panoramic Setup)</li>
-                          <li>Ambisonic Audio Recorder</li>
-                        </ul>
+                {versions.map((version) => (
+                  <div
+                    key={version.title}
+                    className={`project-detail-newborn-version-item${version.active ? ' project-detail-newborn-version-item-active' : ''}`}
+                  >
+                    <div className="project-detail-newborn-version-year">{version.year}</div>
+                    <div className="project-detail-newborn-version-content">
+                      <h3 className="project-detail-newborn-version">{version.title}</h3>
+                      <div className="project-detail-newborn-version-details">
+                        {version.columns.map((column) => (
+                          <div key={column.label} className="project-detail-newborn-version-column">
+                            <h4 className="project-detail-newborn-version-label">{column.label}</h4>
+                            <ul className="project-detail-newborn-version-list">
+                              {column.items.map((item) => <li key={item}>{item}</li>)}
+                            </ul>
+                          </div>
+                        ))}
                       </div>
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">AI Model</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>Base : pix2pix</li>
-                          <li>Dataset : Small Scale</li>
-                        </ul>
-                      </div>
+                      <p className="project-detail-newborn-version-description">
+                        {version.description}
+                      </p>
                     </div>
-                    <p className="project-detail-newborn-version-description">
-                      As the project's initial iteration, audiovisual data was collected using four action cameras arranged in a panoramic configuration alongside an ambisonic spatial audio recorder. By training a pix2pix-based model on a limited dataset, this stage experimented with the feasibility of sound-to-image translation.
-                    </p>
                   </div>
-                </div>
-                <div className="project-detail-newborn-version-item">
-                  <div className="project-detail-newborn-version-year">2024</div>
-                  <div className="project-detail-newborn-version-content">
-                    <h3 className="project-detail-newborn-version">Version 2.0.x</h3>
-                    <div className="project-detail-newborn-version-details">
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">Data Collection</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>360° Camera</li>
-                          <li>Ambisonic Audio Recorder</li>
-                        </ul>
-                      </div>
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">AI Model</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>Base : pix2pix</li>
-                          <li>Dataset : Expanded</li>
-                        </ul>
-                      </div>
-                    </div>
-                    <p className="project-detail-newborn-version-description">
-                      The utilization of a 360-degree camera enabled the acquisition of spatial data where image and sound are more seamlessly integrated. This version leveraged a significantly expanded dataset for training compared to the previous iteration.
-                    </p>
-                  </div>
-                </div>
-                <div className="project-detail-newborn-version-item project-detail-newborn-version-item-active">
-                  <div className="project-detail-newborn-version-year">2025 - Now</div>
-                  <div className="project-detail-newborn-version-content">
-                    <h3 className="project-detail-newborn-version">Version 2.1.x</h3>
-                    <div className="project-detail-newborn-version-details">
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">Data Collection</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>360° Camera</li>
-                          <li>Ambisonic Audio Recorder</li>
-                        </ul>
-                      </div>
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">AI Model</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>Base : Modified pix2pix</li>
-                          <li>Dataset : Expanded</li>
-                        </ul>
-                      </div>
-                    </div>
-                    <p className="project-detail-newborn-version-description">
-                      The pix2pix model was adapted to be optimized for training on 360-degree Equirectangular Images, accompanied by a fundamental restructuring of the input data format. By converting audio Mel Spectrograms into the equirectangular format for training, this version establishes a methodology that directly maps the auditory characteristics of sound onto spatial information.
-                    </p>
-                  </div>
-                </div>
-                <div className="project-detail-newborn-version-item">
-                  <div className="project-detail-newborn-version-year">In Development</div>
-                  <div className="project-detail-newborn-version-content">
-                    <h3 className="project-detail-newborn-version">Version 3.x</h3>
-                    <div className="project-detail-newborn-version-details">
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">Focus</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>Spatial Dimensionality</li>
-                        </ul>
-                      </div>
-                      <div className="project-detail-newborn-version-column">
-                        <h4 className="project-detail-newborn-version-label">Approach</h4>
-                        <ul className="project-detail-newborn-version-list">
-                          <li>3D Scanning & 2D to 3D Conversion</li>
-                        </ul>
-                      </div>
-                    </div>
-                    <p className="project-detail-newborn-version-description">
-                      Focusing on spatial dimensionalization as a core objective, future research will explore methods to convey the sound-generated 'Newborn Space' with three-dimensional depth and volumetric presence.
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
             <div className="project-detail-newborn-section-wrapper">
               <section className="project-detail-newborn-section">
                 <h2 className="project-detail-newborn-title">CURRENT WORKFLOW</h2>
                 <div className="project-detail-newborn-content">
-                  {/* 텍스트 내용은 추후 추가 */}
                 </div>
               </section>
               <div className="project-detail-newborn-data-collection-wrapper">
@@ -547,26 +446,13 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                         <div className="project-detail-newborn-stat-item">
                           <span className="project-detail-newborn-stat">REGIONS</span>
                           <span className="project-detail-newborn-stat-value">
-                            <span
-                              className={`project-detail-newborn-region ${activeRegion === 'KR' ? 'project-detail-newborn-region-active' : ''}`}
-                              onClick={() => handleRegionClick('KR')}
-                            >KR</span>
-                            <span
-                              className={`project-detail-newborn-region ${activeRegion === 'JP' ? 'project-detail-newborn-region-active' : ''}`}
-                              onClick={() => handleRegionClick('JP')}
-                            >JP</span>
-                            <span
-                              className={`project-detail-newborn-region ${activeRegion === 'FR' ? 'project-detail-newborn-region-active' : ''}`}
-                              onClick={() => handleRegionClick('FR')}
-                            >FR</span>
-                            <span
-                              className={`project-detail-newborn-region ${activeRegion === 'DE' ? 'project-detail-newborn-region-active' : ''}`}
-                              onClick={() => handleRegionClick('DE')}
-                            >DE</span>
-                            <span
-                              className={`project-detail-newborn-region ${activeRegion === 'NL' ? 'project-detail-newborn-region-active' : ''}`}
-                              onClick={() => handleRegionClick('NL')}
-                            >NL</span>
+                            {Object.keys(regionCoordinates).map((region) => (
+                              <span
+                                key={region}
+                                className={`project-detail-newborn-region ${activeRegion === region ? 'project-detail-newborn-region-active' : ''}`}
+                                onClick={() => handleRegionClick(region)}
+                              >{region}</span>
+                            ))}
                           </span>
                         </div>
                       </div>
@@ -590,7 +476,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                               className="project-detail-newborn-image-overlay"
                               id="image-slider-overlay-2"
                               onMouseDown={handleImageMouseDown2}
-                              style={{ cursor: isImageDragging2 ? 'col-resize' : 'col-resize' }}
+                              style={{ cursor: 'col-resize' }}
                             >
                               <div className="project-detail-newborn-image-bottom">
                                 {(() => {
@@ -664,8 +550,8 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                             </div>
                             <div
                               className="project-detail-newborn-image-vertical-slider"
-                              onMouseDown={handleVerticalSliderClick}
-                              style={{ cursor: isVerticalDragging ? 'row-resize' : 'row-resize' }}
+                              onMouseDown={handleVerticalMouseDown}
+                              style={{ cursor: 'row-resize' }}
                             >
                               {Array.from({ length: 12 }, (_, i) => {
                                 const position = (i / 11) * 100;
@@ -700,10 +586,9 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                               </div>
                               <div
                                 className="project-detail-newborn-image-vertical-slider-handle"
-                                onMouseDown={handleVerticalMouseDown}
                                 style={{
                                   top: `${verticalSliderPosition}%`,
-                                  cursor: isVerticalDragging ? 'row-resize' : 'row-resize',
+                                  cursor: 'row-resize',
                                   transform: 'translate(-50%, -50%)'
                                 }}
                               ></div>
@@ -716,56 +601,16 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                         </div>
                         <div className="project-detail-newborn-workflow-approach">
                           <h4 className="project-detail-newborn-workflow-approach-title">Current Approach (v2.1.x)</h4>
-                          <div className="project-detail-newborn-workflow-approach-section">
-                            <h4 className="project-detail-newborn-workflow-approach-section-title">Ambisonics Processing</h4>
-                            <div className="project-detail-newborn-workflow-approach-list-wrapper">
-                              <ul className="project-detail-newborn-workflow-approach-list">
-                                <li>Ambisonics A-format → B-format Conversion</li>
-                                <li>Audio Normalization</li>
-                                <li>Channel Alignment</li>
-                              </ul>
+                          {approachSections.map((section) => (
+                            <div key={section.title} className="project-detail-newborn-workflow-approach-section">
+                              <h4 className="project-detail-newborn-workflow-approach-section-title">{section.title}</h4>
+                              <div className="project-detail-newborn-workflow-approach-list-wrapper">
+                                <ul className="project-detail-newborn-workflow-approach-list">
+                                  {section.items.map((item) => <li key={item}>{item}</li>)}
+                                </ul>
+                              </div>
                             </div>
-                          </div>
-                          <div className="project-detail-newborn-workflow-approach-section">
-                            <h4 className="project-detail-newborn-workflow-approach-section-title">Directional Audio Extraction</h4>
-                            <div className="project-detail-newborn-workflow-approach-list-wrapper">
-                              <ul className="project-detail-newborn-workflow-approach-list">
-                                <li>Extract Audio by Direction (0°~360°)</li>
-                                <li>Spatial Audio Decomposition</li>
-                                <li>Generate Directional Audio Signal</li>
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="project-detail-newborn-workflow-approach-section">
-                            <h4 className="project-detail-newborn-workflow-approach-section-title">Mel-Spectrogram Conversion</h4>
-                            <div className="project-detail-newborn-workflow-approach-list-wrapper">
-                              <ul className="project-detail-newborn-workflow-approach-list">
-                                <li>Time-Frequency Transformation per Direction</li>
-                                <li>Mel-scale Frequency Mapping</li>
-                                <li>Generated Spectrograms for Each Direction</li>
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="project-detail-newborn-workflow-approach-section">
-                            <h4 className="project-detail-newborn-workflow-approach-section-title">Spherical Coordinate Mapping</h4>
-                            <div className="project-detail-newborn-workflow-approach-list-wrapper">
-                              <ul className="project-detail-newborn-workflow-approach-list">
-                                <li>Map audio energy to spherical grid</li>
-                                <li>Coordinates: (θ: Azimuth, φ: Elevation)</li>
-                                <li>Energy distribution per direction</li>
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="project-detail-newborn-workflow-approach-section">
-                            <h4 className="project-detail-newborn-workflow-approach-section-title">Frequency Layer Stacking</h4>
-                            <div className="project-detail-newborn-workflow-approach-list-wrapper">
-                              <ul className="project-detail-newborn-workflow-approach-list">
-                                <li>Divide into multiple frequency bands</li>
-                                <li>Stack as multi-layer tensor</li>
-                                <li>Each layer = Energy at one frequency band</li>
-                              </ul>
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -784,7 +629,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                         className="project-detail-newborn-image-overlay"
                         id="image-slider-overlay"
                         onMouseDown={handleImageMouseDown}
-                        style={{ cursor: isImageDragging ? 'col-resize' : 'col-resize' }}
+                        style={{ cursor: 'col-resize' }}
                       >
                         <div className="project-detail-newborn-image-bottom"></div>
                         <div
@@ -911,232 +756,6 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
             </section>
           </div>
         )}
-
-
-        {/* Section 01: Data Collection */}
-        {sections.section01 && (
-          <section className="project-detail-section">
-            <div className="project-detail-section-num">01</div>
-            <div className="project-detail-section-content">
-              <div className="project-detail-tags">
-                {sections.section01.tags.map((tag, idx) => (
-                  <span key={idx} className="project-detail-tag">{tag}</span>
-                ))}
-              </div>
-              <h2 className="project-detail-section-title">{sections.section01.title}</h2>
-
-              <div className="project-detail-map-wrapper">
-                <div className="project-detail-map-bg">MAP INTERFACE (Mapbox API Area)</div>
-
-                {sections.section01.mapPins && sections.section01.mapPins.map((pin, idx) => (
-                  <div
-                    key={idx}
-                    className="project-detail-data-pin"
-                    style={{ top: pin.top, left: pin.left }}
-                    onClick={() => openPin(pin.title, pin.coord)}
-                  ></div>
-                ))}
-
-                {pinModal.open && (
-                  <div className="project-detail-pin-modal">
-                    <h3>{pinModal.title}</h3>
-                    <p className="project-detail-coord">{pinModal.coord}</p>
-                    <div className="project-detail-video-placeholder">
-                      ▶ Playing YouTube ASMR Video...<br />
-                      (Ambisonics 360 Audio)
-                    </div>
-                    <button
-                      className="project-detail-modal-close"
-                      onClick={closePin}
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-              </div>
-              {sections.section01.note && (
-                <p className="project-detail-mono project-detail-note">
-                  {sections.section01.note}
-                </p>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Section 02: Preprocessing */}
-        {sections.section02 && (
-          <section className="project-detail-section">
-            <div className="project-detail-section-num">02</div>
-            <div className="project-detail-section-content">
-              <div className="project-detail-tags">
-                {sections.section02.tags.map((tag, idx) => (
-                  <span key={idx} className="project-detail-tag">{tag}</span>
-                ))}
-              </div>
-              <h2 className="project-detail-section-title">{sections.section02.title}</h2>
-              {sections.section02.description && (
-                <p className="project-detail-section-description">
-                  {sections.section02.description}
-                </p>
-              )}
-
-              <div className="project-detail-process-grid">
-                <div className="project-detail-process-box">
-                  <h3>{sections.section02.inputTitle}</h3>
-                  <p className="project-detail-mono">{sections.section02.inputSubtitle}</p>
-                  <svg width="100%" height="80" style={{ marginTop: '20px' }}>
-                    <path d="M0,40 Q20,10 40,40 T80,40 T120,40 T160,40" stroke="#444" fill="none" strokeWidth="2" />
-                    <path d="M0,40 Q10,70 20,40 T40,40 T60,40 T80,40" stroke="#00ff88" fill="none" strokeWidth="2" />
-                  </svg>
-                  <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '10px' }}>
-                    {sections.section02.inputDescription}
-                  </p>
-                </div>
-
-                <div className="project-detail-process-box">
-                  <h3>{sections.section02.outputTitle}</h3>
-                  <p className="project-detail-mono">{sections.section02.outputSubtitle}</p>
-
-                  <div className="project-detail-tensor-visualizer">
-                    {Array.from({ length: 12 }).map((_, idx) => (
-                      <div key={idx} className="project-detail-tensor-cell"></div>
-                    ))}
-                  </div>
-                  <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '10px' }}>
-                    {sections.section02.outputDescription}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Section 03: Architecture */}
-        {sections.section03 && (
-          <section className="project-detail-section">
-            <div className="project-detail-section-num">03</div>
-            <div className="project-detail-section-content">
-              <div className="project-detail-tags">
-                {sections.section03.tags.map((tag, idx) => (
-                  <span key={idx} className="project-detail-tag">{tag}</span>
-                ))}
-              </div>
-              <h2 className="project-detail-section-title">{sections.section03.title}</h2>
-
-              {sections.section03.code && (
-                <div className="project-detail-code-window">
-                  {sections.section03.code.split('\n').map((line, idx) => {
-                    // 키워드와 클래스명, 주석을 찾아서 하이라이팅
-                    const parts = [];
-                    let remaining = line;
-
-                    // 키워드 매칭 (class, def, if, return, self)
-                    const keywordRegex = /\b(class|def|if|return|self)\b/;
-                    const keywordMatch = remaining.match(keywordRegex);
-                    if (keywordMatch) {
-                      const before = remaining.substring(0, keywordMatch.index);
-                      if (before) parts.push({ type: 'text', content: before });
-                      parts.push({ type: 'kwd', content: keywordMatch[0] });
-                      remaining = remaining.substring(keywordMatch.index + keywordMatch[0].length);
-                    }
-
-                    // 클래스명 매칭
-                    const classRegex = /\b(SphereConv2d|CircularPad2d|nn\.Module)\b/;
-                    const classMatch = remaining.match(classRegex);
-                    if (classMatch) {
-                      const before = remaining.substring(0, classMatch.index);
-                      if (before) parts.push({ type: 'text', content: before });
-                      parts.push({ type: 'cls', content: classMatch[0] });
-                      remaining = remaining.substring(classMatch.index + classMatch[0].length);
-                    }
-
-                    // 주석 매칭
-                    const commentIndex = remaining.indexOf('#');
-                    if (commentIndex >= 0) {
-                      if (commentIndex > 0) parts.push({ type: 'text', content: remaining.substring(0, commentIndex) });
-                      parts.push({ type: 'com', content: remaining.substring(commentIndex) });
-                    } else if (remaining) {
-                      parts.push({ type: 'text', content: remaining });
-                    }
-
-                    return (
-                      <div key={idx}>
-                        {parts.length > 0 ? (
-                          parts.map((part, partIdx) => {
-                            if (part.type === 'kwd') {
-                              return <span key={partIdx} className="project-detail-code-kwd">{part.content}</span>;
-                            } else if (part.type === 'cls') {
-                              return <span key={partIdx} className="project-detail-code-cls">{part.content}</span>;
-                            } else if (part.type === 'com') {
-                              return <span key={partIdx} className="project-detail-code-com">{part.content}</span>;
-                            } else {
-                              return <span key={partIdx}>{part.content}</span>;
-                            }
-                          })
-                        ) : (
-                          <span>{line}</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Section 04: Result */}
-        {sections.section04 && (
-          <section className="project-detail-section" style={{ borderBottom: 'none' }}>
-            <div className="project-detail-section-num">04</div>
-            <div className="project-detail-section-content">
-              <div className="project-detail-tags">
-                {sections.section04.tags.map((tag, idx) => (
-                  <span key={idx} className="project-detail-tag">{tag}</span>
-                ))}
-              </div>
-              <h2 className="project-detail-section-title">{sections.section04.title}</h2>
-              {sections.section04.description && (
-                <p className="project-detail-section-description">
-                  {sections.section04.description}
-                </p>
-              )}
-
-              <div
-                className="project-detail-slider-wrapper"
-                id="project-slider"
-                onMouseDown={handleMouseDown}
-                style={{ cursor: isDragging ? 'col-resize' : 'col-resize' }}
-              >
-                <div className="project-detail-slide-image project-detail-img-before">
-                  {sections.section04.beforeLabel && (
-                    <div className="project-detail-slider-label project-detail-slider-label-before">
-                      {sections.section04.beforeLabel}
-                    </div>
-                  )}
-                </div>
-                <div
-                  className="project-detail-slide-image project-detail-img-after"
-                  style={{ width: `${sliderPosition}%` }}
-                >
-                  {sections.section04.afterLabel && (
-                    <div className="project-detail-slider-label project-detail-slider-label-after">
-                      {sections.section04.afterLabel}
-                    </div>
-                  )}
-                </div>
-
-                <div
-                  className="project-detail-slider-knob"
-                  style={{ left: `${sliderPosition}%` }}
-                >
-                  &lt; &gt;
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
       </div>
     </Layout>
   );
@@ -1159,12 +778,7 @@ export async function getServerSideProps({ params }) {
       const foundProject = projects.find(p => createSlug(p.name) === params.slug);
 
       if (foundProject) {
-        // Notion 데이터를 컴포넌트 형식에 맞게 변환
-        project = {
-          name: foundProject.name,
-          description: foundProject.description,
-          sections: {} // 일반 프로젝트는 섹션 정보가 없음
-        };
+        project = { name: foundProject.name };
       }
     } catch (error) {
       console.error('Project Notion search error:', error);
@@ -1178,7 +792,7 @@ export async function getServerSideProps({ params }) {
   }
 
   let artworks = [];
-  if (params.slug.includes('newborn')) {
+  if (params.slug === 'newborn-space') {
     try {
       const { getWORKDataServer, getARTWORKDataServer } = await import('../../lib/notion-api-server');
       const { processWorkData } = await import('../../lib/work-processor');
@@ -1196,8 +810,8 @@ export async function getServerSideProps({ params }) {
       const currentNotionProject = projects.find(p => createSlug(p.name) === params.slug)
         || projects.find(p => p.name.includes('NEWBORN') || p.name.includes('Newborn'));
 
-      let projectId = currentNotionProject ? currentNotionProject.id : null;
-      let projectName = currentNotionProject ? currentNotionProject.name : project.name;
+      const projectId = currentNotionProject ? currentNotionProject.id : null;
+      const projectName = currentNotionProject ? currentNotionProject.name : project.name;
 
       if (projectId) {
         artworks = await loadArtworkImagesForProject(projectId, projectName, artworkData, projectNames);
@@ -1206,20 +820,16 @@ export async function getServerSideProps({ params }) {
       if (artworks.length === 0) {
         const possibleNames = ['NEWBORN SPACE', '신생공NEWBORN SPACE', 'Newborn Space', 'newborn space'];
         for (const pName of possibleNames) {
-          if (params.slug === 'newborn-space') {
-            const pItem = projects.find(p => p.name === pName || p.name.includes(pName));
-            const pId = pItem ? pItem.id : null;
-            const targetId = pId || null;
-            const altArtworks = await loadArtworkImagesForProject(targetId, pName, artworkData, projectNames);
-            if (altArtworks.length > 0) {
-              artworks = altArtworks;
-              break;
-            }
+          const pItem = projects.find(p => p.name === pName || p.name.includes(pName));
+          const altArtworks = await loadArtworkImagesForProject(pItem ? pItem.id : null, pName, artworkData, projectNames);
+          if (altArtworks.length > 0) {
+            artworks = altArtworks;
+            break;
           }
         }
       }
     } catch (error) {
-      console.error('Error fetching project artworks in getStaticProps:', error);
+      console.error('Error fetching project artworks in getServerSideProps:', error);
     }
   }
 
