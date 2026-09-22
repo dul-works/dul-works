@@ -4,7 +4,7 @@
 // - R2 버킷에 이미 있는 파일은 건너뜀
 // - Notion에서 사라진 이미지는 R2에서도 삭제 (조회 오류가 있던 회차는 삭제하지 않음)
 // - 끝나면 manifest.json에 R2 파일 목록 기록 → 사이트는 목록에 없는 이미지를 Notion 주소로 임시 표시
-// - public/assets/images 의 기존 로컬 이미지도 함께 업로드 (Image 필드 레거시 참조용)
+// - public/assets/{images,videos,pdf} 의 로컬 파일도 함께 업로드 (images는 루트 키, videos/·pdf/ 접두어)
 // - Notion 커버, Files 속성, 페이지 본문 이미지 블록을 모두 수집
 // - Notion 원본은 WebP(긴 변 2400px, 품질 85)로 변환해서 업로드
 // - R2 키 규칙은 사이트와 공유 (lib/r2-key.js)
@@ -20,7 +20,12 @@ const { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand }
 const sharp = require('sharp');
 const { r2KeyFromUrl, blockImageFilename } = require('../lib/r2-key');
 
-const LOCAL_IMAGES_DIR = path.join(process.cwd(), 'public/assets/images');
+// 로컬 정적 파일 → R2 키 접두어. images는 Image 필드 레거시 참조용이라 루트 키 그대로
+const LOCAL_DIRS = [
+  { dir: 'public/assets/images', prefix: '' },
+  { dir: 'public/assets/videos', prefix: 'videos/' },
+  { dir: 'public/assets/pdf', prefix: 'pdf/' },
+];
 const MAX_EDGE = 2400;
 const WEBP_QUALITY = 85;
 const CONCURRENCY = 4;
@@ -35,6 +40,9 @@ const CONTENT_TYPES = {
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
   '.gif': 'image/gif',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.pdf': 'application/pdf',
 };
 
 function getContentType(key) {
@@ -255,20 +263,24 @@ async function main() {
   let skipped = 0;
   let failed = 0;
 
-  // 1) 로컬 public/assets/images 업로드
-  if (fs.existsSync(LOCAL_IMAGES_DIR)) {
-    const localFiles = fs.readdirSync(LOCAL_IMAGES_DIR).filter((f) => CONTENT_TYPES[path.extname(f).toLowerCase()]);
-    console.log(`\n💾 로컬 이미지: ${localFiles.length}개`);
+  // 1) 로컬 정적 파일 업로드 (public/assets/images, videos, pdf)
+  for (const { dir, prefix } of LOCAL_DIRS) {
+    const absDir = path.join(process.cwd(), dir);
+    if (!fs.existsSync(absDir)) continue;
+    const localFiles = fs.readdirSync(absDir).filter((f) => CONTENT_TYPES[path.extname(f).toLowerCase()]);
+    console.log(`
+💾 로컬 파일 (${dir}): ${localFiles.length}개`);
     for (const filename of localFiles) {
-      if (existingKeys.has(filename)) { skipped++; continue; }
+      const key = prefix + filename;
+      if (existingKeys.has(key)) { skipped++; continue; }
       try {
-        const body = fs.readFileSync(path.join(LOCAL_IMAGES_DIR, filename));
-        await withRetry(() => upload(s3, R2_BUCKET_NAME, filename, body));
-        existingKeys.set(filename, body.length);
-        console.log(`✅ 업로드(로컬): ${filename}`);
+        const body = fs.readFileSync(path.join(absDir, filename));
+        await withRetry(() => upload(s3, R2_BUCKET_NAME, key, body));
+        existingKeys.set(key, body.length);
+        console.log(`✅ 업로드(로컬): ${key}`);
         uploaded++;
       } catch (err) {
-        console.warn(`⚠️  실패(로컬): ${filename} — ${err.message}`);
+        console.warn(`⚠️  실패(로컬): ${key} — ${err.message}`);
         failed++;
       }
     }

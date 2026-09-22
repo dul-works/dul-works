@@ -1,6 +1,7 @@
 import Layout from '../../../../components/Layout';
 import { getExhibitionBySlug, getRelatedTextPage } from '../../../../lib/exhibition-detail-processor';
 import { createSlug } from '../../../../lib/slug-utils';
+import { getImageUrl } from '../../../../lib/notion-utils';
 import RichParagraphs from '../../../../components/RichParagraphs';
 
 export default function ExhibitionRelatedText({ relatedText }) {
@@ -9,10 +10,10 @@ export default function ExhibitionRelatedText({ relatedText }) {
       <div className="related-text-page-container">
         <h1 className="related-text-page-title">{relatedText.title || 'Related Text'}</h1>
 
-        {relatedText.contentType === 'file' && relatedText.fileName ? (
+        {relatedText.pdfUrl ? (
           <div className="pdf-container" style={{ width: '100%', height: '80vh' }}>
             <embed
-              src={`/assets/pdf/${encodeURIComponent(relatedText.fileName.endsWith('.pdf') ? relatedText.fileName : relatedText.fileName + '.pdf')}`}
+              src={relatedText.pdfUrl}
               type="application/pdf"
               width="100%"
               height="100%"
@@ -66,10 +67,18 @@ export async function getServerSideProps({ params }) {
     // Related Text 페이지 내용 가져오기
     const relatedTextContent = await getRelatedTextPage(relatedText.pageId);
 
+    // PDF는 R2의 pdf/ 에서 제공 (scripts/sync-images-to-r2.js가 업로드)
+    let pdfUrl = null;
+    if (relatedText.contentType === 'file' && relatedText.fileName) {
+      const fileName = relatedText.fileName.endsWith('.pdf') ? relatedText.fileName : relatedText.fileName + '.pdf';
+      pdfUrl = getImageUrl(`pdf/${fileName}`);
+    }
+
     return {
       props: {
         relatedText: {
           ...relatedText,
+          pdfUrl,
           content: relatedTextContent?.content || []
         }
       },

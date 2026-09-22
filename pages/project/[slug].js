@@ -2,6 +2,7 @@ import Layout from '../../components/Layout';
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { getProjectBySlug } from '../../lib/project-data';
+import { getImageUrl } from '../../lib/notion-utils';
 import ImageWithOverlay from '../../components/ImageWithOverlay';
 
 // 기술 버전 이력 (TECHNICAL PROCESS)
@@ -54,7 +55,7 @@ const approachSections = [
   { title: 'Frequency Layer Stacking', items: ['Divide into multiple frequency bands', 'Stack as multi-layer tensor', 'Each layer = Energy at one frequency band'] },
 ];
 
-export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
+export default function ProjectDetail({ project, slug, newbornArtworks = [], videoBase }) {
   const isNewbornSpace = slug === 'newborn-space';
   const [activeRegion, setActiveRegion] = useState('KR');
   const [imageSliderPosition, setImageSliderPosition] = useState(50);
@@ -518,7 +519,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                                               backgroundColor: 'transparent'
                                             }}
                                           >
-                                            <source src={`/assets/videos/directional_mel_${String(videoIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
+                                            <source src={`${videoBase}/directional_mel_${String(videoIndex).padStart(2, '0')}.mp4`} type="video/mp4" />
                                           </video>
                                         );
                                       })}
@@ -537,7 +538,7 @@ export default function ProjectDetail({ project, slug, newbornArtworks = [] }) {
                                   playsInline
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 >
-                                  <source src={`/assets/videos/rgba_mel.mp4`} type="video/mp4" />
+                                  <source src={`${videoBase}/rgba_mel.mp4`} type="video/mp4" />
                                 </video>
                               </div>
                               <div
@@ -837,7 +838,9 @@ export async function getServerSideProps({ params }) {
     props: {
       project,
       slug: params.slug,
-      newbornArtworks: artworks
+      newbornArtworks: artworks,
+      // 영상은 R2의 videos/ 에서 제공 (scripts/sync-images-to-r2.js가 업로드)
+      videoBase: getImageUrl('videos')
     },
   };
 }
