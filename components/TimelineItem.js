@@ -1,5 +1,8 @@
 import ImageWithOverlay from './ImageWithOverlay';
 
+// '열,행'(열은 1 또는 2) 또는 'full'만 배치 가능. 그 외 값은 Index 없음처럼 왼쪽 열에 붙인다
+const PLACEABLE_INDEX = /^(full$|[12]\s*,\s*\d)/i;
+
 export default function TimelineItem({ timeline, artworkImages, isFirstTimeline = false }) {
   const { name } = timeline;
 
@@ -23,7 +26,7 @@ export default function TimelineItem({ timeline, artworkImages, isFirstTimeline 
     artworkImages.forEach((imageData) => {
       if (!imageData.url || imageData.url === '') return;
 
-      if (!imageData.timelineIndex) {
+      if (!imageData.timelineIndex || !PLACEABLE_INDEX.test(imageData.timelineIndex.toString().trim())) {
         // Timeline-Index가 없는 이미지는 왼쪽 열에 순서대로 추가
         columnArrays[1].push(
           <ImageWithOverlay
