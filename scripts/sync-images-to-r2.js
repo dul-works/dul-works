@@ -94,18 +94,29 @@ function notionRequest(method, apiPath, apiKey, body) {
     }, (res) => {
       let raw = '';
       res.on('data', (chunk) => raw += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, retryAfter: res.headers['retry-after'], data: raw ? JSON.parse(raw) : {} }));
+      res.on('end', () => {
+        // 게이트웨이 오류(502/504)는 본문이 JSON이 아님. 콜백 안의 예외는 프로세스를 죽이므로 여기서 처리
+        let data = {};
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch {
+          data = { message: raw.slice(0, 200) };
+        }
+        resolve({ status: res.statusCode, retryAfter: res.headers['retry-after'], data });
+      });
     });
     req.on('error', reject);
+    req.setTimeout(30000, () => req.destroy(new Error('Notion API timeout')));
     if (payload) req.write(payload);
     req.end();
   });
 }
 
 async function notionCall(method, apiPath, apiKey, body) {
+  let lastStatus;
   for (let attempt = 0; attempt < 5; attempt++) {
     const res = await withRetry(() => notionRequest(method, apiPath, apiKey, body));
-    if (res.status !== 429) {
+    if (res.status !== 429 && res.status < 500) {
       if (res.status >= 400) {
         const err = new Error(`Notion API ${res.status}: ${res.data.message || ''}`);
         err.permanent = true;
@@ -114,10 +125,11 @@ async function notionCall(method, apiPath, apiKey, body) {
       }
       return res.data;
     }
-    const delay = parseInt(res.retryAfter || '1', 10) * 1000 + attempt * 500;
-    await new Promise((r) => setTimeout(r, delay));
+    lastStatus = res.status;
+    const waitSec = parseInt(res.retryAfter || String(2 ** attempt), 10);
+    await new Promise((r) => setTimeout(r, waitSec * 1000));
   }
-  throw new Error('Notion API rate limit 재시도 초과');
+  throw new Error(`Notion API ${lastStatus} 재시도 초과`);
 }
 
 async function fetchNotionDatabase(databaseId, apiKey) {
