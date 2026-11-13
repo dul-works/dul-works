@@ -43,7 +43,7 @@ export default function Texts({ texts, types }) {
                   <div>
                     <h2 style={{ fontWeight: 'inherit' }}>{t.href ? <a className="title" href={t.href}>{Title}</a> : Title}</h2>
                     {t.on.length > 0 && (
-                      <p className="on">on {t.on.map((o) => o.en).join(', ')}{t.on.some((o) => o.ko) && <span className="kr" lang="ko">{t.on.map((o) => o.ko || o.en).join(', ')}</span>}</p>
+                      <p className="on">on {t.on.map((o) => o.en).join(', ')}{t.on.some((o) => o.ko && o.ko !== o.en) && <span className="kr" lang="ko">{t.on.map((o) => o.ko || o.en).join(', ')}</span>}</p>
                     )}
                   </div>
                   <span className="col-by">{t.author || ''}</span>
@@ -75,7 +75,7 @@ export async function getStaticProps() {
     year: t.year,
     href: t.readable ? `/texts/${t.slug}` : t.url,
     external: !t.readable && !!t.url,
-    on: [...t.artworkIds, ...t.workIds].map((id) => names[id]).filter(Boolean),
+    on: [...t.artworkIds, ...t.workIds].map((id) => names[id]).filter(Boolean).map((o) => ({ en: o.en, ko: o.ko && o.ko !== o.en ? o.ko : null })),
   }));
   const types = [...new Set(site.texts.map((t) => t.type?.toLowerCase()).filter(Boolean))].sort();
   return { props: { texts, types }, revalidate: REVALIDATE };

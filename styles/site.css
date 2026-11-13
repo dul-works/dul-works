@@ -99,7 +99,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hero-meta { margin-top: 12px; }
 .home-top { margin-top: 64px; display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; }
 .home-top.solo { grid-template-columns: 1fr; }
-.slogan { display: flex; flex-direction: column; gap: 14px; }
+.slogan { display: flex; flex-direction: column; gap: 14px; max-width: 600px; }
 .now-row { display: grid; grid-template-columns: 150px 1fr; column-gap: 22px; padding: 16px 0; border-top: 1px solid var(--line); text-decoration: none; }
 .now-row .poster { width: 150px; height: 200px; }
 .now-row .info { display: flex; flex-direction: column; gap: 2px; font-size: 16px; }
@@ -308,7 +308,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .bleed { margin-left: calc(var(--pad) * -1); margin-right: calc(var(--pad) * -1); }
   .t-page { font-size: 33px; line-height: 1.05; }
   .t-page-kr { font-family: var(--title); font-weight: 500; font-size: 23px; line-height: 1.35; }
-  .t-proj { font-size: 33px; }
+  .t-proj { font-size: 26px; line-height: 1.05; }
   .t-card { font-size: 16px; line-height: 1.2; }
   .t-card-kr { font-size: 14px; line-height: 1.45; }
   .t-stmt { font-size: 23px; line-height: 1.15; font-weight: 500; }

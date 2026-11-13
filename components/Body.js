@@ -220,7 +220,8 @@ function TextPair({ n, mode, level = 1 }) {
 // 연속된 목록 항목을 하나의 목록으로
 function groupLists(items) {
   const out = [];
-  for (const n of items) {
+  for (let n of items) {
+    n = norm(n);
     const last = out[out.length - 1];
     if ((n.t === 'ul' || n.t === 'ol') && last?.t === `${n.t}-group`) last.items.push(n);
     else if (n.t === 'ul' || n.t === 'ol') out.push({ t: `${n.t}-group`, items: [n] });
