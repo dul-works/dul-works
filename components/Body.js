@@ -74,14 +74,14 @@ function Caption({ cap, prefix }) {
   return (
     <figcaption>
       {cap.en && <span className="en">{prefix?.en}{cap.en}</span>}
-      {cap.ko && <span className="kr" lang="ko">{prefix?.ko}{cap.ko}</span>}
+      {cap.ko && <span className="kr" lang="ko">{!cap.en && prefix?.en}{cap.ko}</span>}
     </figcaption>
   );
 }
 
 function Media({ n, ctx }) {
   const fig = ctx.numbered && (n.t === 'image' || n.t === 'video' || n.t === 'embed') ? ++ctx.fig : null;
-  const prefix = fig ? { en: `fig. ${fig}, `, ko: `그림 ${fig}, ` } : null;
+  const prefix = fig ? { en: `fig. ${fig}, `, ko: '' } : null; // 사이트가 붙이는 글자는 영문만
   const alt = n.cap?.en || `${ctx.title}, image ${++ctx.img}`;
   let el = null;
   if (n.t === 'image') el = <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} />;
@@ -300,7 +300,7 @@ function ParRow({ n, ctx, solo }) {
 
 /**
  * body: lib/blocks parseBody 결과
- * defaultHead: 제목 없는 첫 섹션의 레일 이름 (작품 페이지 'about the work / 작품 소개')
+ * defaultHead: 제목 없는 첫 섹션의 레일 이름 (작품 페이지 'about the work', 사이트 라벨은 영문만)
  * skip: 다른 자리로 옮긴 섹션 (credits)
  */
 export default function Body({ body, mode = 'column', title = '', defaultHead, skip = () => false, startNumber = 1 }) {

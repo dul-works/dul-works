@@ -51,7 +51,7 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
             <img src={cover} alt={`${w.name}, image 1`} style={{ width: '100%', height: 'auto' }} fetchpriority="high" />
           </figure>
         )}
-        <Body body={body} mode="parallel" title={w.name} defaultHead={{ en: [{ x: 'about the work' }], ko: [{ x: '작품 소개' }] }} skip={(s) => /^credits$/i.test(rtText(s.head?.en).trim())} />
+        <Body body={body} mode="parallel" title={w.name} defaultHead={{ en: [{ x: 'about the work' }] }} skip={(s) => /^credits$/i.test(rtText(s.head?.en).trim())} />
         <RelationLists exhibited={exhibited} texts={texts} />
         {also.length > 0 && (
           <section className="also rule">

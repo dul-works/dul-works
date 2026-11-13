@@ -42,7 +42,7 @@ export default function Read({ t, items, lang, about }) {
           )}
           {hasKo && (
             <div className="kr" lang="ko">
-              {both && <p className="lang-head">한국어</p>}
+              {both && <p className="lang-head">korean</p>}
               <Column items={items} side="ko" />
             </div>
           )}
@@ -96,7 +96,7 @@ export async function getStaticProps({ params }) {
   if (m) items.pop();
   const about = [
     ...site.artworks.filter((a) => t.artworkIds.includes(a.id)).map((a) => ({ href: `/works/${a.slug}`, en: a.name, ko: a.nameKr })),
-    ...site.projects.filter((p) => !p.etc && t.workIds.includes(p.id)).map((p) => ({ href: `/projects/${p.slug}`, en: `project ‘${p.name}’`, ko: p.nameKr ? `프로젝트 ‘${p.nameKr}’` : null })),
+    ...site.projects.filter((p) => !p.etc && t.workIds.includes(p.id)).map((p) => ({ href: `/projects/${p.slug}`, en: `project ‘${p.name}’`, ko: p.nameKr || null })),
     ...site.exhibitions.filter((e) => t.workIds.includes(e.id)).map((e) => ({ href: `/works?group=exhibition#${e.slug}`, en: e.name, ko: e.nameKr })),
   ];
   return { props: { t: { ...t, author }, items, lang: body.lang, about }, revalidate: REVALIDATE };
