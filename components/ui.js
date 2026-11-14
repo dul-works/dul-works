@@ -9,9 +9,30 @@ export const EMAIL = 'easyone.work@gmail.com';
 export const INSTAGRAM = 'https://www.instagram.com/easy_dul/';
 
 // 열린 선 로고 (Dul-01). stroke는 크기에 맞춰 조정
-export function Logo({ width = 38, height = 58, stroke = 12, ...rest }) {
+// studio.edul 로고의 네 면 (studio repo components/shapes.js, viewBox 630×960). dul 로고는 633×963에 1.5 안쪽이라 translate(1.5 1.5)로 맞춤
+const STUDIO_FACES = [
+  'M150 300C232.843 300 300 232.843 300 150L150 0C67.157 0 0 67.157 0 150C0 232.843 67.157 300 150 300Z',
+  'M330 0A300 300 0 0 1 630 300L330 300Z',
+  'M300 660L0 960L300 960Z',
+  'M330 810C330 892.843 397.157 960 480 960C562.843 960 630 892.843 630 810C630 727.157 562.843 660 480 660L330 810Z',
+];
+export const MORPH_COLOR = '#000000'; // 차오르는 면 색 (스튜디오 로고와 같은 검정)
+
+/**
+ * morph: 헤더 로고. 'studio.edul ↗'에 hover·focus하면 스튜디오 로고의 네 면이 아래에서 위로 차오름 (Site-05).
+ * 움직임은 site.css(.logo-fill-rect)가 맡고, clip 사각형만 아래(y 963)에서 위(0)로 옮김
+ */
+export function Logo({ width = 38, height = 58, stroke = 12, morph = false, ...rest }) {
   return (
     <svg width={width} height={height} viewBox="0 0 633 963" fill="none" aria-hidden="true" {...rest}>
+      {morph && (
+        <>
+          <clipPath id="logo-fill-clip"><rect className="logo-fill-rect" x="0" y="0" width="633" height="963" /></clipPath>
+          <g clipPath="url(#logo-fill-clip)" transform="translate(1.5 1.5)" fill={MORPH_COLOR}>
+            {STUDIO_FACES.map((d) => <path key={d} d={d} />)}
+          </g>
+        </>
+      )}
       <mask id={`dlm${stroke}`} style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="331" y="1" width="301" height="301">
         <rect x="331.5" y="1.5" width="300" height="300" fill="#fff" />
       </mask>
@@ -51,7 +72,7 @@ export function Layout({ title, description, image, children }) {
       <a className="skip" href="#main">skip to content</a>
       <header className="site-header">
         <Link href="/" className="logo" aria-label="dul, home">
-          <Logo />
+          <Logo morph />
         </Link>
         <nav aria-label="main" className="site-nav">
           {NAV.map(([label, href]) => (

@@ -420,3 +420,23 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .ex-lead.solo { grid-template-columns: 1fr; }
 .group-head.solo { grid-template-columns: minmax(0, 900px); }
+
+/* 로고 모핑 (Site-05): studio.edul ↗ hover·focus → 스튜디오 로고 면이 아래에서 위로 차오르고, 떼면 위에서 아래로 빠짐.
+   마우스가 있는 기기에서만, 움직임 줄이기면 즉시 전환 */
+.logo-fill-rect { transform: translateY(963px); }
+@media (hover: hover) {
+  .logo-fill-rect { transition: transform 400ms cubic-bezier(.6, 0, .2, 1); }
+  .site-header:has(.studio-link a:hover) .logo-fill-rect { transform: translateY(0); }
+}
+.site-header:has(.studio-link a:focus-visible) .logo-fill-rect { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .logo-fill-rect { transition: none !important; } }
+
+/* 홈 대표 사진이 세로일 때 (가로면 .hero 전폭 그대로) */
+.hero-portrait { display: grid; grid-template-columns: 50% 1fr; column-gap: 48px; align-items: end; }
+.hero-portrait[data-size='third'] { grid-template-columns: 33.333% 1fr; }
+.hero-portrait .hero-meta { margin: 0; padding-bottom: 4px; }
+@media (max-width: 767px) {
+  /* 모바일: 전폭이면 화면 두 배 넘게 길어져서 2/3 폭 왼쪽, 제목은 아래 */
+  .hero-portrait, .hero-portrait[data-size='third'] { grid-template-columns: 1fr; row-gap: 12px; }
+  .hero-portrait .hero-img { width: 66.667%; }
+}
