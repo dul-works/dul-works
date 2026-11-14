@@ -35,3 +35,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# 예전 생성 파일 (만료된 노션 링크), 사이트가 쓰지 않음
+/lib/artwork-map.json

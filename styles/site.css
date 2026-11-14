@@ -440,15 +440,20 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .group-head.solo { grid-template-columns: minmax(0, 900px); }
 
-/* 로고 모핑 (Site-05): studio.edul ↗ hover·focus → 스튜디오 로고 면이 아래에서 위로 차오르고, 떼면 위에서 아래로 빠짐.
-   마우스가 있는 기기에서만, 움직임 줄이기면 즉시 전환 */
-.logo-fill-rect { transform: translateY(963px); }
+/* 로고 모핑 (Site-05, 2차): studio.edul ↗ hover·focus → 스튜디오 로고 면이 도형마다 차오름, 떼면 되감김.
+   둥근 면: 중심에서 시계 방향 부채꼴 sweep(dashoffset len → 0). 삼각형: 빗변과 평행한 경계가 직각 꼭짓점에서 빗변으로(-45° 좌표에서 y 0 → -240).
+   넷이 동시에 400ms cubic-bezier(.6,0,.2,1). 마우스 기기만, 움직임 줄이기면 즉시 */
+.morph-sweep { stroke-dashoffset: var(--len); }
+.morph-wipe { transform: translateY(0); }
 @media (hover: hover) {
-  .logo-fill-rect { transition: transform 400ms cubic-bezier(.6, 0, .2, 1); }
-  .site-header:has(.studio-link a:hover) .logo-fill-rect { transform: translateY(0); }
+  .morph-sweep { transition: stroke-dashoffset 400ms cubic-bezier(.6, 0, .2, 1); }
+  .morph-wipe { transition: transform 400ms cubic-bezier(.6, 0, .2, 1); }
+  .site-header:has(.studio-link a:hover) .morph-sweep { stroke-dashoffset: 0; }
+  .site-header:has(.studio-link a:hover) .morph-wipe { transform: translateY(-240px); }
 }
-.site-header:has(.studio-link a:focus-visible) .logo-fill-rect { transform: translateY(0); }
-@media (prefers-reduced-motion: reduce) { .logo-fill-rect { transition: none !important; } }
+.site-header:has(.studio-link a:focus-visible) .morph-sweep { stroke-dashoffset: 0; }
+.site-header:has(.studio-link a:focus-visible) .morph-wipe { transform: translateY(-240px); }
+@media (prefers-reduced-motion: reduce) { .morph-sweep, .morph-wipe { transition: none !important; } }
 
 /* 홈 대표 사진이 세로일 때 (가로면 .hero 전폭 그대로) */
 .hero-portrait { display: grid; grid-template-columns: 50% 1fr; column-gap: 48px; align-items: end; }

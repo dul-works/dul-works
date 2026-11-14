@@ -10,28 +10,44 @@ export const INSTAGRAM = 'https://www.instagram.com/easy_dul/';
 
 // 열린 선 로고 (Dul-01). stroke는 크기에 맞춰 조정
 // studio.edul 로고의 네 면 (studio repo components/shapes.js, viewBox 630×960). dul 로고는 633×963에 1.5 안쪽이라 translate(1.5 1.5)로 맞춤
-const STUDIO_FACES = [
-  'M150 300C232.843 300 300 232.843 300 150L150 0C67.157 0 0 67.157 0 150C0 232.843 67.157 300 150 300Z',
-  'M330 0A300 300 0 0 1 630 300L330 300Z',
-  'M300 660L0 960L300 960Z',
-  'M330 810C330 892.843 397.157 960 480 960C562.843 960 630 892.843 630 810C630 727.157 562.843 660 480 660L330 810Z',
+// 둥근 면 3개는 원 중심에서 시계 방향 부채꼴로 쓸며 차고(sweep), 삼각형은 빗변과 평행한 경계가 직각 꼭짓점에서 빗변 쪽으로 이동.
+// sweep: 반지름 r/2·두께 r인 원을 pathLength 100으로 그리고 dashoffset을 len → 0. 시작 각도 = 곧은 변(현) 한쪽 끝
+const SWEEPS = [
+  // process: 원(150,150), 오른쪽 위가 현. 3시(현의 아래 끝)에서 시작해 한 바퀴 돌아 현에서 닫힘
+  { id: 'p', d: 'M150 300C232.843 300 300 232.843 300 150L150 0C67.157 0 0 67.157 0 150C0 232.843 67.157 300 150 300Z', cx: 150, cy: 150, r: 160, start: 0, len: 100 },
+  // patch: 사분원 꼭짓점(330,300), 12시에서 3시까지 90°만 쓸면 다 참
+  { id: 'a', d: 'M330 0A300 300 0 0 1 630 300L330 300Z', cx: 330, cy: 300, r: 310, start: -90, len: 25 },
+  // collab: 원(480,810), 왼쪽 위가 현. 12시(현의 오른쪽 끝)에서 시작해 한 바퀴
+  { id: 'c', d: 'M330 810C330 892.843 397.157 960 480 960C562.843 960 630 892.843 630 810C630 727.157 562.843 660 480 660L330 810Z', cx: 480, cy: 810, r: 160, start: -90, len: 100 },
 ];
+// share: 직각 꼭짓점 (300,960), 빗변 (300,660)–(0,960). 꼭짓점을 원점으로 -45° 돌린 좌표에서 y축이 빗변의 법선
+const SHARE = 'M300 660L0 960L300 960Z';
 export const MORPH_COLOR = '#000000'; // 차오르는 면 색 (스튜디오 로고와 같은 검정)
 
 /**
  * morph: 헤더 로고. 'studio.edul ↗'에 hover·focus하면 스튜디오 로고의 네 면이 아래에서 위로 차오름 (Site-05).
- * 움직임은 site.css(.logo-fill-rect)가 맡고, clip 사각형만 아래(y 963)에서 위(0)로 옮김
+ * 움직임은 site.css(.morph-sweep, .morph-wipe)가 맡음 (도형마다 sweep·wipe)
  */
 export function Logo({ width = 38, height = 58, stroke = 12, morph = false, ...rest }) {
   return (
     <svg width={width} height={height} viewBox="0 0 633 963" fill="none" aria-hidden="true" {...rest}>
       {morph && (
-        <>
-          <clipPath id="logo-fill-clip"><rect className="logo-fill-rect" x="0" y="0" width="633" height="963" /></clipPath>
-          <g clipPath="url(#logo-fill-clip)" transform="translate(1.5 1.5)" fill={MORPH_COLOR}>
-            {STUDIO_FACES.map((d) => <path key={d} d={d} />)}
-          </g>
-        </>
+        <g transform="translate(1.5 1.5)" fill={MORPH_COLOR}>
+          {SWEEPS.map((s) => (
+            <g key={s.id}>
+              <mask id={`lm-${s.id}`} maskUnits="userSpaceOnUse" x="-20" y="-20" width="680" height="1000">
+                <circle className="morph-sweep" cx={s.cx} cy={s.cy} r={s.r / 2} fill="none" stroke="#fff" strokeWidth={s.r} pathLength="100" strokeDasharray={`${s.len} 100`} transform={`rotate(${s.start} ${s.cx} ${s.cy})`} style={{ '--len': s.len }} />
+              </mask>
+              <path d={s.d} mask={`url(#lm-${s.id})`} />
+            </g>
+          ))}
+          <mask id="lm-s" maskUnits="userSpaceOnUse" x="-20" y="-20" width="680" height="1000">
+            <g transform="translate(300 960) rotate(-45)">
+              <rect className="morph-wipe" x="-400" y="0" width="800" height="240" fill="#fff" />
+            </g>
+          </mask>
+          <path d={SHARE} mask="url(#lm-s)" />
+        </g>
       )}
       <mask id={`dlm${stroke}`} style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="331" y="1" width="301" height="301">
         <rect x="331.5" y="1.5" width="300" height="300" fill="#fff" />
@@ -191,7 +207,7 @@ export function RelationLists({ exhibited, texts }) {
             {exhibited.map((e) => (
               <li key={e.key} className="rel-row">
                 <span className="gray">{e.year}</span>
-                <Link href={e.href}><span className="en">{e.en}</span>{e.ko && <span className="kr" lang="ko">{e.ko}</span>}</Link>
+                {e.href ? <Link href={e.href}><span className="en">{e.en}</span>{e.ko && <span className="kr" lang="ko">{e.ko}</span>}</Link> : <span><span className="en">{e.en}</span>{e.ko && <span className="kr" lang="ko">{e.ko}</span>}</span>}
               </li>
             ))}
           </ul>

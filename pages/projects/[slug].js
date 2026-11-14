@@ -1,4 +1,4 @@
-// 프로젝트 (Site-04, 연구 페이지): column 모드, 섹션 번호 자동, 끝에 works · exhibited · texts
+// 프로젝트 (Site-04, 연구 페이지): column 모드, 섹션 번호 자동, 끝에 works · exhibited · archive
 import Link from 'next/link';
 import { Layout, WorkCard, Masonry } from '../../components/ui';
 import Body, { FileButton } from '../../components/Body';
@@ -96,7 +96,7 @@ export async function getStaticProps({ params }) {
   }
   const works = site.artworks.filter((a) => a.projectId === p.id).sort(byNewest);
   const workIds = new Set(works.map((w) => w.id));
-  const exhibitions = site.exhibitions.filter((e) => works.some((w) => w.exhibitionIds.includes(e.id)));
+  const exhibitions = [...site.exhibitions, ...site.hiddenExhibitions].filter((e) => works.some((w) => w.exhibitionIds.includes(e.id)));
   const exIds = new Set(exhibitions.map((e) => e.id));
   // 프로젝트·작품·작품이 나온 전시에 연결된 글
   const texts = site.texts.filter((t) => t.workIds.includes(p.id) || t.workIds.some((id) => exIds.has(id)) || t.artworkIds.some((id) => workIds.has(id)));
