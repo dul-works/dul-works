@@ -65,7 +65,7 @@ export async function getStaticProps() {
   const site = await getSite();
   const { cv } = site;
   const ex = (kind) => site.exhibitions.filter((e) => e.kind === kind).map((e) => ({
-    key: e.slug, year: e.year, en: e.name, ko: e.nameKr, right: e.venue, rightKr: e.venueKr, href: `/works?group=exhibition#${e.slug}`,
+    key: e.slug, year: e.year, en: e.name, ko: e.nameKr, right: e.venue, rightKr: e.venueKr, href: `/exhibitions/${e.slug}`,
   }));
   const sections = [
     { title: 'education', rows: cv.education.map((r) => ({ key: r.id, year: yearSpan(r.year, r.endYear), en: r.place || r.name, ko: null, right: [r.name, r.client].filter(Boolean).join(', '), rightKr: r.nameKr !== r.name ? r.nameKr : null })) },

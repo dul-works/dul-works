@@ -97,7 +97,7 @@ export async function getStaticProps({ params }) {
   const about = [
     ...site.artworks.filter((a) => t.artworkIds.includes(a.id)).map((a) => ({ href: `/works/${a.slug}`, en: a.name, ko: a.nameKr })),
     ...site.projects.filter((p) => !p.etc && t.workIds.includes(p.id)).map((p) => ({ href: `/projects/${p.slug}`, en: `project ‘${p.name}’`, ko: p.nameKr || null })),
-    ...site.exhibitions.filter((e) => t.workIds.includes(e.id)).map((e) => ({ href: `/works?group=exhibition#${e.slug}`, en: e.name, ko: e.nameKr })),
+    ...site.exhibitions.filter((e) => t.workIds.includes(e.id)).map((e) => ({ href: `/exhibitions/${e.slug}`, en: e.name, ko: e.nameKr })),
   ];
   return { props: { t: { ...t, author }, items, lang: body.lang, about }, revalidate: REVALIDATE };
 }

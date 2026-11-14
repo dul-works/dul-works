@@ -1,6 +1,6 @@
 // 작품 상세 (Dul-P3)
 import Link from 'next/link';
-import { Layout, TitlePair, WorkCard, RelationLists } from '../../components/ui';
+import { Layout, TitlePair, WorkCard, RelationLists, Masonry } from '../../components/ui';
 import Body from '../../components/Body';
 import { getSite, getPageBody, byNewest, card, exhibitedRow, textRow, REVALIDATE } from '../../lib/data';
 import { firstImage, rtText } from '../../lib/blocks';
@@ -59,9 +59,7 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
               <h2 className="section-label">also in project ‘{project.name}’</h2>
               <Link href={`/projects/${project.slug}`} className="tlink" style={{ minHeight: 'auto' }}>view project</Link>
             </div>
-            <ul className="grid4" style={{ listStyle: 'none', padding: 0 }}>
-              {also.map((a) => <li key={a.slug}><WorkCard work={a} /></li>)}
-            </ul>
+            <Masonry cols={4}>{also.map((a) => <WorkCard key={a.slug} work={a} />)}</Masonry>
           </section>
         )}
         <nav className="prevnext" aria-label="previous and next work">

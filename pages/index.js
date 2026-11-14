@@ -1,7 +1,7 @@
 // 홈 (Site-01)
 import Link from 'next/link';
-import { Layout, Cover, TitlePair, WorkCard } from '../components/ui';
-import { getSite, exhibitionsOnHome, byNewest, card, REVALIDATE } from '../lib/data';
+import { Layout, Cover, TitlePair, WorkCard, Masonry } from '../components/ui';
+import { getSite, exhibitionsOnHome, card, REVALIDATE } from '../lib/data';
 import { rtText } from '../lib/blocks';
 
 const SLOGAN_EN = 'using technology to sustain what technology threatens to erase.';
@@ -45,7 +45,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
                 <section key={label} aria-label={label} style={gi ? { marginTop: 40 } : undefined}>
                   <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{label}</h2>
                   {list.map((e) => (
-                    <Link key={e.slug} href={`/works?group=exhibition#${e.slug}`} className="now-row card">
+                    <Link key={e.slug} href={`/exhibitions/${e.slug}`} className="now-row card">
                       <Cover src={e.cover} className="poster" alt={`${e.name} poster`} />
                       <div className="info">
                         <TitlePair name={e.name} nameKr={e.nameKr} as="h3" />
@@ -80,13 +80,13 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             </div>
             {wide && (
               <div className="sel-wide">
-                <WorkCard work={wide} ratio="ratio-169" />
+                <WorkCard work={wide} />
               </div>
             )}
             {alts.map((w, i) => (
               <div key={w.slug} className={`sel-alt${i % 2 ? ' flip' : ''}`}>
                 <Link href={`/works/${w.slug}`} className="card sel-img" tabIndex={-1} aria-hidden="true">
-                  <Cover src={w.cover} className="ratio-43" />
+                  <Cover src={w.cover} />
                 </Link>
                 <div>
                   <Link href={`/works/${w.slug}`} className="card">
@@ -97,9 +97,9 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
               </div>
             ))}
             {pairs.length > 0 && (
-              <div className="sel-pair">
+              <Masonry cols={2} className="sel-pair">
                 {pairs.map((w) => <WorkCard key={w.slug} work={w} />)}
-              </div>
+              </Masonry>
             )}
             <div className="all-works">
               <Link href="/works" className="tlink" style={{ fontSize: 18 }}>all works</Link>
@@ -113,9 +113,8 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
 
 export async function getStaticProps() {
   const site = await getSite();
-  // Selected 체크한 작품을 Order 순으로 (첫 번째가 대표 사진). 아무것도 체크되지 않았으면 최신 작품 6점
-  let picks = site.artworks.filter((a) => a.selected).sort((a, b) => a.order - b.order);
-  if (!picks.length) picks = [...site.artworks].filter((a) => a.cover).sort(byNewest).slice(0, 6);
+  // Selected 체크한 작품만 Order 순으로 (첫 번째가 대표 사진). 체크가 없으면 대표 사진·selected works 칸 모두 숨김
+  const picks = site.artworks.filter((a) => a.selected).sort((a, b) => a.order - b.order);
   const [hero, ...selected] = picks.map(card);
 
   const st = site.statement?.sections?.[0]?.items || [];

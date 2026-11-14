@@ -12,8 +12,9 @@ module.exports = {
       { source: '/project/:slug', destination: '/projects/:slug', permanent: true },
       { source: '/projects', destination: '/works', permanent: true },
       { source: '/exhibition/:slug/related/:related', destination: '/texts', permanent: true },
-      { source: '/exhibition/:slug', destination: '/works?group=exhibition', permanent: true },
+      { source: '/exhibition/:slug', destination: '/exhibitions/:slug', permanent: true },
       { source: '/exhibitions', destination: '/works?group=exhibition', permanent: true },
+      { source: '/exhibition', destination: '/works?group=exhibition', permanent: true },
       { source: '/timeline', destination: '/works?group=year', permanent: true },
       { source: '/studio-edul', destination: 'https://studio-edul.com', permanent: true },
     ];

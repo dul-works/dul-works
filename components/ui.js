@@ -1,3 +1,4 @@
+import { Children, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -91,11 +92,14 @@ export function Rich({ rt, lang }) {
   });
 }
 
-/** 커버 이미지 또는 빈 칸(#F1F2F2 + 작은 로고) */
-export function Cover({ src, alt = '', className = '', eager = false }) {
+/**
+ * 커버 이미지: 원본 비율 그대로(폭 맞춤, 높이는 이미지대로, 자르지 않음).
+ * 이미지가 없을 때만 #F1F2F2 빈 칸 + 작은 로고 (placeholder 비율은 className, 기본 4:3)
+ */
+export function Cover({ src, alt = '', className = '', placeholder = 'ratio-43', eager = false }) {
   if (!src) {
     return (
-      <div className={`ph ${className}`} role={alt ? 'img' : undefined} aria-label={alt || undefined}>
+      <div className={`ph ${placeholder} ${className}`} role={alt ? 'img' : undefined} aria-label={alt || undefined}>
         <Logo width={32} height={48} stroke={14} style={{ color: '#666B6A' }} />
       </div>
     );
@@ -121,10 +125,10 @@ export function TitlePair({ name, nameKr, year, as: Tag = 'h3', en = 't-card', k
   );
 }
 
-export function WorkCard({ work, ratio = 'ratio-43', heading = 'h3', showDesc = false }) {
+export function WorkCard({ work, heading = 'h3', showDesc = false }) {
   return (
     <Link href={`/works/${work.slug}`} className="card">
-      <Cover src={work.cover} className={ratio} />
+      <Cover src={work.cover} />
       <div className="meta">
         <TitlePair name={work.name} nameKr={work.nameKr} year={work.year} as={heading} />
         {work.year && <span className="year-m" hidden>{work.year}</span>}
@@ -189,3 +193,33 @@ export function RelationLists({ exhibited, texts }) {
   );
 }
 
+
+/**
+ * 원본 비율 카드를 열 너비는 같게, 간격은 일정하게 쌓기 (높이가 달라도 빈 줄 없이).
+ * DOM·읽는 순서는 그대로(왼→오, 위→아래). 각 칸의 실제 높이를 재서 grid 행 span을 정하고,
+ * grid가 순서대로 다음 빈 자리에 놓음. JS 전에는 같은 grid가 위쪽 정렬로 보임.
+ */
+export function Masonry({ cols = 2, children, className = '' }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const ul = ref.current;
+    if (!ul) return;
+    const fit = () => {
+      const unit = parseFloat(getComputedStyle(ul).gridAutoRows) || 4;
+      for (const li of ul.children) {
+        const h = li.firstElementChild ? li.firstElementChild.getBoundingClientRect().height : 0;
+        li.style.gridRowEnd = `span ${Math.ceil(h / unit) + 1}`;
+      }
+      ul.classList.add('masonry-on');
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    for (const li of ul.children) if (li.firstElementChild) ro.observe(li.firstElementChild);
+    return () => ro.disconnect();
+  }, [children]);
+  return (
+    <ul ref={ref} className={`masonry c${cols} ${className}`}>
+      {Children.toArray(children).map((c, i) => <li key={i}><div>{c}</div></li>)}
+    </ul>
+  );
+}

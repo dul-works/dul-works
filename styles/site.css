@@ -67,9 +67,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- 공통 조각 ---------- */
 .ph { background: var(--empty); display: flex; align-items: center; justify-content: center; }
 .ph svg { width: 32px; height: 48px; }
-.cover-img { width: 100%; height: 100%; object-fit: cover; }
-.ratio-43 { aspect-ratio: 4 / 3; overflow: hidden; }
-.ratio-169 { aspect-ratio: 16 / 9; overflow: hidden; }
+.cover-img { width: 100%; height: auto; } /* 원본 비율 그대로, 자르지 않음 */
+.ratio-43 { aspect-ratio: 4 / 3; } /* 이미지 없는 빈 칸에만 */
+.ratio-169 { aspect-ratio: 16 / 9; }
+/* 원본 비율 카드 쌓기 (components/ui Masonry). 간격: 가로 24, 세로 48 */
+.masonry { list-style: none; padding: 0; display: grid; column-gap: 24px; align-items: start; grid-auto-rows: 4px; }
+.masonry > li > div { padding-bottom: 44px; }
+.masonry:not(.masonry-on) { grid-auto-rows: auto; }
+.masonry.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.masonry.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.masonry.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .title-row { display: flex; align-items: baseline; gap: 14px; }
 .title-row .year { margin-left: auto; font-size: 16px; color: var(--gray); white-space: nowrap; }
 .card { display: block; text-decoration: none; color: var(--ink); }
@@ -78,8 +85,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .card .meta { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
 .card-desc { margin-top: 10px; font-size: 15px; line-height: 1.6; }
 .card-desc .kr { display: block; margin-top: 6px; font-size: 14px; line-height: 1.75; }
-.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px 24px; }
-.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 24px; }
 .rule { border-top: 1px solid var(--ink); }
 .hair { border-top: 1px solid var(--line); }
 .pill { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border: 1px solid var(--ink); border-radius: 999px; font-size: 15px; font-weight: 500; text-decoration: none; }
@@ -95,13 +100,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .crumbs span[aria-current] { color: var(--ink); }
 
 /* ---------- 홈 (Site-01) ---------- */
-.hero { width: 100%; aspect-ratio: 1440 / 472; overflow: hidden; background: var(--empty); }
+.hero { width: 100%; } /* 원본 비율 그대로 */
 .hero-meta { margin-top: 12px; }
 .home-top { margin-top: 64px; display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; }
 .home-top.solo { grid-template-columns: 1fr; }
 .slogan { display: flex; flex-direction: column; gap: 14px; max-width: 600px; }
 .now-row { display: grid; grid-template-columns: 150px 1fr; column-gap: 22px; padding: 16px 0; border-top: 1px solid var(--line); text-decoration: none; }
-.now-row .poster { width: 150px; height: 200px; }
+.now-row .poster { width: 150px; }
 .now-row .info { display: flex; flex-direction: column; gap: 2px; font-size: 16px; }
 .about { margin-top: 96px; display: grid; grid-template-columns: 240px 1fr; gap: 48px; padding-top: 24px; }
 .about-text { max-width: 980px; display: flex; flex-direction: column; gap: 10px; }
@@ -113,7 +118,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .sel-alt { margin-top: 96px; display: grid; grid-template-columns: 880px 1fr; gap: 48px; align-items: end; }
 .sel-alt.flip { grid-template-columns: 1fr 880px; }
 .sel-alt.flip .sel-img { order: 2; }
-.sel-pair { margin-top: 96px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.sel-pair { margin-top: 96px; }
 .all-works { margin-top: 96px; padding-top: 28px; display: flex; justify-content: center; border-top: 1px solid var(--line); }
 
 /* ---------- works (Dul-P2) ---------- */
@@ -127,6 +132,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .group-head .desc-kr { font-family: var(--kr-sans); font-size: 17px; line-height: 1.9; color: var(--kr-body); }
 .group-head .sub { margin-top: 8px; font-size: 16px; }
 .other-works { border-top: 1px solid var(--line); padding-top: 24px; }
+/* group by exhibition: 포스터(원본 비율) | 작품 카드 */
+.with-poster { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 48px; align-items: start; }
 
 /* ---------- 작품 상세 (Dul-P3) ---------- */
 .work-top { margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 64px; align-items: start; }
@@ -313,18 +320,20 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .t-card-kr { font-size: 14px; line-height: 1.45; }
   .t-stmt { font-size: 23px; line-height: 1.15; font-weight: 500; }
   .t-stmt-kr { font-size: 18px; line-height: 1.5; font-weight: 500; }
-  .hero { aspect-ratio: 390 / 292; }
   .home-top { margin-top: 40px; gap: 40px; }
   .now-row { grid-template-columns: 96px 1fr; column-gap: 16px; }
-  .now-row .poster { width: 96px; height: 128px; }
+  .now-row .poster { width: 96px; }
   .about { grid-template-columns: 1fr; gap: 14px; margin-top: 64px; }
   .about-text .en { font-size: 18px; }
   .about-text .kr { font-size: 16px; }
   .selected-head { margin-top: 64px; }
   .sel-wide .t-card { font-size: 18px; }
-  .sel-alt, .sel-pair { margin-top: 48px; grid-template-columns: 1fr; gap: 32px; }
+  .sel-alt { margin-top: 48px; grid-template-columns: 1fr; gap: 32px; }
+  .sel-pair { margin-top: 48px; }
   .all-works { margin-top: 48px; }
-  .grid3, .grid4 { grid-template-columns: 1fr 1fr; gap: 28px 12px; }
+  .masonry.c2, .masonry.c3 { grid-template-columns: 1fr; }
+  .masonry.c4 { grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .masonry > li > div { padding-bottom: 32px; }
   .card .meta { margin-top: 8px; }
   .title-row { flex-direction: column; gap: 0; }
   .title-row .year { margin-left: 0; font-size: 13px; order: 3; margin-top: 4px; }
@@ -339,6 +348,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .group-head .desc { font-size: 15px; line-height: 1.6; }
   .group-head .desc-kr { font-size: 14px; line-height: 1.75; }
   .group { padding-bottom: 48px; }
+  .with-poster { grid-template-columns: 1fr; gap: 32px; }
+  .with-poster > .card { max-width: 240px; }
   .work-top { margin-top: 12px; gap: 0; }
   .work-top .info-wrap { order: 3; }
   .work-cover { margin-top: 28px; }
@@ -395,3 +406,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+.mt24 { margin-top: 24px; }
+
+/* 전시 상세: 포스터(원본 비율) | 설명 */
+.ex-lead { margin-top: 64px; display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 64px; align-items: start; }
+.ex-desc { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.ex-desc .en { font-size: 19px; line-height: 1.7; }
+.ex-desc .kr { font-size: 17px; line-height: 1.9; color: var(--kr-body); }
+@media (max-width: 760px) {
+  .ex-lead { grid-template-columns: 1fr; gap: 28px; margin-top: 28px; }
+}
+.ex-lead.solo { grid-template-columns: 1fr; }
+.group-head.solo { grid-template-columns: minmax(0, 900px); }

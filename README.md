@@ -10,12 +10,17 @@
 | `/` | 대표 사진, 문장, now on view · upcoming, about, selected works | ARTWORK `Selected`·`Order`, WORKS 전시 `Period`(진행 중 + 90일 이내 예정), Artist Statement |
 | `/works` | group by project / exhibition / year, sort newest / oldest | ARTWORK, WORKS |
 | `/works/[slug]` | 작품 상세 (EN \| KR 두 열 본문 + 갤러리) | ARTWORK (`Slug`) |
+| `/exhibitions/[slug]` | 전시 상세 (포스터, 기간·장소·종류, 본문 EN \| KR, 출품작, 관련 글) | WORKS `Class = SOLO/GROUP EXHIBITION`, 페이지 커버 = 포스터 |
 | `/projects/[slug]` | 프로젝트 연구 페이지 (영문 아래 국문, 섹션 번호) | WORKS `Class = PROJECT` |
 | `/texts`, `/texts/[slug]` | 글 목록, 읽기 (`Content = Text`인 글만 읽기 페이지, 나머지는 바깥 링크) | RELATED |
 | `/cv` | 학력·전시·수상·레지던시·참여작 (전시는 WORKS에서) | CV, WORKS |
 | `/contact` | 연락처 | — |
 
-예전 주소(`/work`, `/work/[이름]`, `/project/…`, `/exhibition/…`, `/timeline`, `/studio-edul`)는 `next.config.js`에서 새 주소로 넘깁니다.
+예전 주소(`/work`, `/work/[이름]`, `/project/…`, `/exhibition/…` → `/exhibitions/…`, `/timeline`, `/studio-edul`)는 `next.config.js`에서 새 주소로 넘깁니다.
+
+## 이미지
+
+사이트 어디서도 이미지를 자르지 않습니다(원본 비율, 폭만 맞춤). 카드 묶음은 `components/ui.js`의 `Masonry`로 열 너비·간격만 맞추고 높이는 이미지대로 쌓습니다. 이미지가 없는 칸만 4:3 빈 칸입니다.
 
 ## 노션 → 웹
 

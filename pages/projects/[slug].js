@@ -1,6 +1,6 @@
 // 프로젝트 (Site-04, 연구 페이지): column 모드, 섹션 번호 자동, 끝에 works · exhibited · texts
 import Link from 'next/link';
-import { Layout, WorkCard } from '../../components/ui';
+import { Layout, WorkCard, Masonry } from '../../components/ui';
 import Body, { FileButton } from '../../components/Body';
 import { getSite, getPageBody, byNewest, card, exhibitedRow, textRow, REVALIDATE } from '../../lib/data';
 
@@ -56,9 +56,7 @@ export default function Project({ p, body, buttons, works, exhibited, texts }) {
                 <span className="no gray" style={{ fontSize: 15 }}>{pad2(++no)}</span>
                 <span className="t-head">works</span>
               </h2>
-              <ul className="grid3" style={{ listStyle: 'none', padding: 0, marginTop: 24 }}>
-                {works.map((w) => <li key={w.slug}><WorkCard work={w} /></li>)}
-              </ul>
+              <Masonry cols={3} className="mt24">{works.map((w) => <WorkCard key={w.slug} work={w} />)}</Masonry>
             </section>
           )}
           {(exhibited.length > 0 || texts.length > 0) && (

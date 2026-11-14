@@ -1,33 +1,30 @@
 // works (Dul-P2): group by project / exhibition / year, sort newest / oldest
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout, WorkCard } from '../../components/ui';
+import { Layout, WorkCard, Masonry, Cover } from '../../components/ui';
 import { getSite, byNewest, card, REVALIDATE } from '../../lib/data';
 
 const GROUPS = ['project', 'exhibition', 'year'];
 
+// 2열, 원본 비율, 간격 일정 (Masonry: 읽는 순서는 왼→오, 위→아래 그대로)
 function Grid({ works }) {
-  return (
-    <ul className="grid3" style={{ listStyle: 'none', padding: 0 }}>
-      {works.map((w) => <li key={w.slug}><WorkCard work={w} /></li>)}
-    </ul>
-  );
+  return <Masonry cols={2}>{works.map((w) => <WorkCard key={w.slug} work={w} />)}</Masonry>;
 }
 
-function GroupHead({ label, name, nameKr, sub, subKr, desc, descKr, href, big = 't-proj' }) {
+function GroupHead({ label, name, nameKr, sub, subKr, desc, descKr, href, link, big = 't-proj' }) {
   return (
-    <div className="group-head">
+    <div className={`group-head${desc || descKr ? '' : ' solo'}`}>
       <div>
         <span className="label">{label}</span>
         <h2 style={{ marginTop: 4 }}>
-          <span className={big} style={{ display: 'block' }}>{name}</span>
+          {link ? <Link href={link} className={big} style={{ display: 'block', textDecoration: 'none' }}>{name}</Link> : <span className={big} style={{ display: 'block' }}>{name}</span>}
           {nameKr && nameKr !== name && <span className="t-proj-kr" lang="ko" style={{ display: 'block', marginTop: 4 }}>{nameKr}</span>}
         </h2>
         {sub && <p className="sub">{sub}{subKr && <span className="kr" lang="ko" style={{ display: 'block', fontSize: 15 }}>{subKr}</span>}</p>}
         {href && <p style={{ marginTop: 16 }}><Link href={href} className="tlink" style={{ fontSize: 15 }}>view project</Link></p>}
       </div>
-      {desc ? <p className="desc">{desc}</p> : <span aria-hidden="true" />}
-      {descKr ? <p className="desc-kr" lang="ko">{descKr}</p> : <span aria-hidden="true" />}
+      {(desc || descKr) && (desc ? <p className="desc">{desc}</p> : <span aria-hidden="true" />)}
+      {(desc || descKr) && (descKr ? <p className="desc-kr" lang="ko">{descKr}</p> : <span aria-hidden="true" />)}
     </div>
   );
 }
@@ -47,7 +44,7 @@ export default function Works({ works, projects, exhibitions }) {
     const other = order(works.filter((w) => !w.projectId));
     if (other.length) groups.push({ key: 'other-works', head: null, works: other });
   } else if (group === 'exhibition') {
-    groups = exhibitions.map((e) => ({ key: e.slug, head: { label: `${e.kind} exhibition`, name: e.name, nameKr: e.nameKr, sub: [e.venue, e.periodLabel].filter(Boolean).join(', '), subKr: e.venueKr }, works: pick(works.filter((w) => w.exhibitionIds.includes(e.id)).map((w) => w.id)) }));
+    groups = exhibitions.map((e) => ({ key: e.slug, poster: e.cover, link: `/exhibitions/${e.slug}`, name: e.name, head: { label: `${e.kind} exhibition`, name: e.name, nameKr: e.nameKr, sub: [e.venue, e.periodLabel].filter(Boolean).join(', '), subKr: e.venueKr, link: `/exhibitions/${e.slug}` }, works: pick(works.filter((w) => w.exhibitionIds.includes(e.id)).map((w) => w.id)) }));
     if (sort === 'oldest') groups.reverse();
   } else {
     const years = [...new Set(works.map((w) => w.year))].sort((a, b) => (b ?? -1) - (a ?? -1));
@@ -76,7 +73,16 @@ export default function Works({ works, projects, exhibitions }) {
         {groups.map((g) => (
           <section key={g.key} id={g.key} className={g.head ? 'group' : 'group other-works'} aria-label={g.head ? String(g.head.name) : 'other works'}>
             {g.head ? <GroupHead {...g.head} /> : <h2 className="section-label" style={{ marginBottom: 24 }}>other works</h2>}
-            <Grid works={g.works} />
+            {g.poster ? (
+              <div className="with-poster">
+                <Link href={g.link} className="card" aria-label={`${g.name}, exhibition page`}>
+                  <Cover src={g.poster} alt={`${g.name} poster`} />
+                </Link>
+                <Grid works={g.works} />
+              </div>
+            ) : (
+              <Grid works={g.works} />
+            )}
           </section>
         ))}
       </div>
@@ -92,7 +98,7 @@ export async function getStaticProps() {
     props: {
       works,
       projects: site.projects.filter((p) => !p.etc && used.has(p.id)).sort((a, b) => a.order - b.order).map(({ id, slug, name, nameKr, description, descriptionKr }) => ({ id, slug, name, nameKr, description, descriptionKr })),
-      exhibitions: site.exhibitions.map(({ id, slug, name, nameKr, kind, venue, venueKr, periodLabel }) => ({ id, slug, name, nameKr, kind, venue, venueKr, periodLabel })),
+      exhibitions: site.exhibitions.map(({ id, slug, name, nameKr, kind, venue, venueKr, periodLabel, cover }) => ({ id, slug, name, nameKr, kind, venue, venueKr, periodLabel, cover })),
     },
     revalidate: REVALIDATE,
   };
