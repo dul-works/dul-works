@@ -1,6 +1,6 @@
 // 노션 본문 렌더러 (Dul-W1). mode: 'column' = 프로젝트(Site-04), 'parallel' = 작품·글(Site-10, Site-09)
 import { useEffect, useRef, useState } from 'react';
-import { Rich } from './ui';
+import { Rich, Masonry } from './ui';
 
 const hasHangul = (rt) => /[가-힣]/.test((rt || []).map((r) => r.x).join(''));
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -96,12 +96,12 @@ function Media({ n, ctx }) {
   );
 }
 
+// 사진 묶음: 2장 → 2열, 3장 이상 → 3열. 원본 비율, 간격 일정 (P7)
 function Gallery({ items, ctx }) {
-  const n = Math.min(items.length, 3);
   return (
-    <div className={`gallery n${n}`}>
+    <Masonry cols={Math.min(items.length, 3)} className="gallery">
       {items.map((m, i) => <Media key={i} n={m} ctx={ctx} />)}
-    </div>
+    </Masonry>
   );
 }
 
@@ -311,13 +311,16 @@ export default function Body({ body, mode = 'column', title = '', defaultHead, s
   const sections = body.sections.filter((s) => !skip(s));
   if (mode === 'column') {
     return (
-      <div className="col">
+      <div className={`col${solo ? ' one-lang' : ''}`}>
         {sections.map((s, i) => (
           <section key={i} className="sec">
             {s.head && (
+              // 번호 + 영문 제목은 왼쪽 열, 국문 제목은 오른쪽 열 머리 (Site-04)
               <h2 className="sec-head">
-                <span className="no">{pad2(++no)}</span>
-                {s.head.en && <span className="t-head"><Rich rt={s.head.en} /></span>}
+                <span className="sec-en">
+                  <span className="no">{pad2(++no)}</span>
+                  {s.head.en && <span className="t-head"><Rich rt={s.head.en} /></span>}
+                </span>
                 {s.head.ko && <span className="t-head-kr" lang="ko"><Rich rt={s.head.ko} lang="ko" /></span>}
               </h2>
             )}

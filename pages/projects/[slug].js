@@ -62,7 +62,7 @@ export default function Project({ p, body, buttons, works, exhibited, texts }) {
           {(exhibited.length > 0 || texts.length > 0) && (
             <div className="relations" style={{ marginTop: 96, paddingTop: 0 }}>
               {exhibited.length > 0 && <RelCol no={++no} title="exhibited" rows={exhibited.map((e) => ({ ...e, year: null }))} />}
-              {texts.length > 0 && <RelCol no={++no} title="texts" rows={texts} />}
+              {texts.length > 0 && <RelCol no={++no} title="archive" rows={texts} />}
             </div>
           )}
         </div>

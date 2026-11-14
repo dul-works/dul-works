@@ -11,7 +11,9 @@ module.exports = {
       { source: '/work/:slug', destination: '/works/:slug', permanent: true }, // 이름 기반 예전 slug는 /works/[slug]가 다시 넘김
       { source: '/project/:slug', destination: '/projects/:slug', permanent: true },
       { source: '/projects', destination: '/works', permanent: true },
-      { source: '/exhibition/:slug/related/:related', destination: '/texts', permanent: true },
+      { source: '/exhibition/:slug/related/:related', destination: '/archive', permanent: true },
+      { source: '/texts', destination: '/archive', permanent: true },
+      { source: '/texts/:slug', destination: '/archive/:slug', permanent: true },
       { source: '/exhibition/:slug', destination: '/exhibitions/:slug', permanent: true },
       { source: '/exhibitions', destination: '/works?group=exhibition', permanent: true },
       { source: '/exhibition', destination: '/works?group=exhibition', permanent: true },

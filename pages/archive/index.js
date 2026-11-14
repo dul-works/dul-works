@@ -1,4 +1,4 @@
-// texts (Site-08): RELATED DB. 필터 = Type, 정렬 newest / oldest
+// archive (Site-08, 메뉴 이름 texts → archive): RELATED DB. 필터 = Type, 정렬 newest / oldest
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Layout } from '../../components/ui';
@@ -13,10 +13,10 @@ export default function Texts({ texts, types }) {
   if (sort === 'oldest') list = [...list].reverse();
 
   return (
-    <Layout title="texts" description="Critique, press, documentation and links about dul’s works and exhibitions.">
+    <Layout title="archive" description="Critique, press, documentation and links about dul’s works and exhibitions.">
       <div className="wrap">
         <div className="page-head">
-          <h1 className="t-page">texts</h1>
+          <h1 className="t-page">archive</h1>
         </div>
         <div className="text-tabs">
           <div className="tabs" role="group" aria-label="filter by type">
@@ -73,7 +73,7 @@ export async function getStaticProps() {
     author: t.author,
     publication: t.publication,
     year: t.year,
-    href: t.readable ? `/texts/${t.slug}` : t.url,
+    href: t.readable ? `/archive/${t.slug}` : t.url,
     external: !t.readable && !!t.url,
     on: [...t.artworkIds, ...t.workIds].map((id) => names[id]).filter(Boolean).map((o) => ({ en: o.en, ko: o.ko && o.ko !== o.en ? o.ko : null })),
   }));

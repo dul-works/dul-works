@@ -46,7 +46,7 @@ export function Logo({ width = 38, height = 58, stroke = 12, morph = false, ...r
 
 const NAV = [
   ['works', '/works'],
-  ['texts', '/texts'],
+  ['archive', '/archive'],
   ['cv', '/cv'],
   ['contact', '/contact'],
 ];
@@ -76,7 +76,7 @@ export function Layout({ title, description, image, children }) {
         </Link>
         <nav aria-label="main" className="site-nav">
           {NAV.map(([label, href]) => (
-            <Link key={href} href={href} aria-current={path === href || path.startsWith(`${href}/`) ? 'page' : undefined}>
+            <Link key={href} href={href} aria-current={path === href || path.startsWith(`${href}/`) || (href === '/works' && /^\/(projects|exhibitions)\//.test(path)) ? 'page' : undefined}>
               {label}
             </Link>
           ))}
@@ -199,7 +199,7 @@ export function RelationLists({ exhibited, texts }) {
       )}
       {texts.length > 0 && (
         <section>
-          <h2 className="section-label">texts</h2>
+          <h2 className="section-label">archive</h2>
           <ul>
             {texts.map((t) => (
               <li key={t.key} className="rel-row">

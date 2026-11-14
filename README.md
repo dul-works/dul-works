@@ -12,7 +12,7 @@
 | `/works/[slug]` | 작품 상세 (EN \| KR 두 열 본문 + 갤러리) | ARTWORK (`Slug`) |
 | `/exhibitions/[slug]` | 전시 상세 (포스터, 기간·장소·종류, 본문 EN \| KR, 출품작, 관련 글) | WORKS `Class = SOLO/GROUP EXHIBITION`, 페이지 커버 = 포스터 |
 | `/projects/[slug]` | 프로젝트 연구 페이지 (영문 아래 국문, 섹션 번호) | WORKS `Class = PROJECT` |
-| `/texts`, `/texts/[slug]` | 글 목록, 읽기 (`Content = Text`인 글만 읽기 페이지, 나머지는 바깥 링크) | RELATED |
+| `/archive`, `/archive/[slug]` | 아카이브(예전 texts) 목록, 읽기 (`Content = Text`인 글만 읽기 페이지, 나머지는 바깥 링크) | RELATED |
 | `/cv` | 학력·전시·수상·레지던시·참여작 (전시는 WORKS에서) | CV, WORKS |
 | `/contact` | 연락처 | — |
 
