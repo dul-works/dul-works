@@ -279,11 +279,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .read-foot .kr { display: block; font-size: 15px; }
 
 /* ---------- cv (Site-07) ---------- */
-.cv-top { margin-top: var(--sp-top); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-.cv-top .bio { margin-top: 28px; font-size: 18px; line-height: 1.6; }
-.cv-top .bio .kr { display: block; font-size: 17px; margin-top: 6px; }
-.statement { display: flex; flex-direction: column; gap: 16px; font-size: 16px; line-height: 1.7; padding-top: 10px; }
-.statement .kr { font-size: 15px; line-height: 1.85; color: var(--kr-body); }
 .cv-sec { margin-top: var(--sp-section); display: grid; grid-template-columns: 300px 1fr; gap: 48px; }
 .cv-sec + .cv-sec { margin-top: var(--sp-group); }
 .cv-sec h2 { font-family: var(--title); font-weight: 500; font-size: 29px; line-height: 1.2; letter-spacing: -0.02em; }
@@ -294,6 +289,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cv-row .cv-kr { font-family: var(--kr-sans); font-size: 15px; color: var(--kr); }
 .cv-row a { text-decoration: none; }
 .cv-row a:hover { text-decoration: underline; text-underline-offset: 4px; }
+/* 위쪽 이름·출생·statement 행: 이력과 같은 열, 첫 줄 선 없음 */
+.cv-sec.cv-intro { margin-top: var(--sp-top); }
+.cv-intro .cv-row:first-child { border-top: 0; padding-top: 0; }
+.cv-intro .cv-name { align-items: baseline; }
+.cv-intro .cv-name .cv-kr { font-family: var(--title); font-weight: 300; font-size: 36px; line-height: 1.3; color: var(--ink); }
+.cv-intro .cv-stmt { line-height: 1.7; border-top: 0; padding: 0 0 14px; }
+.cv-intro .cv-stmt .cv-kr { line-height: 1.85; color: var(--kr-body); }
 
 /* ---------- contact (Dul-P5) ---------- */
 .contact { margin-top: var(--sp-top); display: grid; grid-template-columns: 300px 1fr; gap: 48px; }
@@ -398,11 +400,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .read-body .en p { font-size: 17px; line-height: 1.65; }
   .read-body .kr p { font-size: 16px; line-height: 1.8; }
   .read-foot { grid-template-columns: 1fr; gap: var(--sp-block); }
-  .cv-top { grid-template-columns: 1fr; gap: var(--sp-block); }
   .cv-sec { grid-template-columns: 1fr; gap: 16px; }
   .cv-sec h2 { font-size: 22px; }
   .cv-row { grid-template-columns: 1fr; gap: 4px; }
   .cv-row .cv-kr:empty { display: none; }
+  .cv-intro > span:first-child { display: none; }
+  .cv-intro .cv-name .cv-kr { font-size: 23px; font-weight: 500; }
   .contact { grid-template-columns: 1fr; gap: var(--sp-block); }
   .contact .big-logo { width: 80px; }
   .contact h1 { font-size: 40px; }

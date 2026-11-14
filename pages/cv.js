@@ -34,28 +34,29 @@ export default function CV({ statement, sections }) {
   return (
     <Layout title="cv" description="dul (Lee Jiwon), new media artist based in Seoul. Exhibitions, education, awards and residencies.">
       <div className="wrap">
-        <div className="cv-top">
-          <div>
-            <h1>
-              <span className="t-page" style={{ display: 'block' }}>dul</span>
-              <span className="t-page-kr" lang="ko" style={{ marginTop: 6 }}>둘</span>
-            </h1>
-            <p className="bio">
-              b. 2000, Seoul. Lives and works in Seoul.
-              <span className="kr" lang="ko">2000년 서울 출생. 서울에서 활동.</span>
-            </p>
-          </div>
-          {statement.length > 0 && (
-            <section id="statement" className="statement" aria-label="artist statement">
-              {statement.map((p, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {p.en && <p><Rich rt={p.en} /></p>}
-                  {p.ko && <p className="kr" lang="ko"><Rich rt={p.ko} lang="ko" /></p>}
-                </div>
-              ))}
-            </section>
-          )}
-        </div>
+        {/* 위쪽도 이력과 같은 3단: 라벨 | 영문 | 국문 (열 위치 x가 아래 이력 행과 같음) */}
+        <section className="cv-sec cv-intro" aria-label="about">
+          <span aria-hidden="true" />
+          <ul className="cv-rows">
+            <li className="cv-row cv-name">
+              <span className="yr">name</span>
+              <h1 className="cv-en t-page">dul</h1>
+              <span className="cv-kr t-page-kr" lang="ko">둘</span>
+            </li>
+            <li className="cv-row">
+              <span className="yr">born</span>
+              <span className="cv-en">b. 2000, Seoul. Lives and works in Seoul.</span>
+              <span className="cv-kr" lang="ko">2000년 서울 출생. 서울에서 활동.</span>
+            </li>
+            {statement.map((p, i) => (
+              <li key={i} className="cv-row cv-stmt" id={i === 0 ? 'statement' : undefined}>
+                <span className="yr">{i === 0 ? 'statement' : ''}</span>
+                <span className="cv-en">{p.en && <Rich rt={p.en} />}</span>
+                <span className="cv-kr" lang="ko">{p.ko && <Rich rt={p.ko} lang="ko" />}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
         {sections.map((s) => <Section key={s.title} {...s} />)}
       </div>
     </Layout>
