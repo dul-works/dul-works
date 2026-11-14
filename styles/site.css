@@ -14,8 +14,9 @@
   --title: 'GmarketSans', var(--font-kr), sans-serif;
   --sans: var(--font-archivo), var(--font-kr), sans-serif;
   --kr-sans: var(--font-kr), sans-serif;
-  --pad: 48px;
-  --max: 1344px;
+  /* 바깥 여백·헤더는 studio-edul.com과 같게: 최대 1440, 여백 64 (모바일 16) */
+  --pad: 64px;
+  --max: 1312px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -52,8 +53,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .t-stmt-kr { font-family: var(--title); font-weight: 300; font-size: 27px; line-height: 1.4; }
 
 /* ---------- 머리·바닥 ---------- */
-.site-header { display: flex; align-items: center; height: 72px; padding: 0 var(--pad); font-stretch: 112%; font-size: 16px; }
+.site-header { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; height: 104px; padding: 0 var(--pad); font-stretch: 112%; font-size: 16px; }
 .logo { display: flex; align-items: center; min-height: 58px; }
+.logo svg { width: 38.1px; height: 58px; flex: none; } /* studio 로고와 같은 크기 (높이 58) */
 .site-nav { margin-left: auto; display: flex; align-items: center; gap: 14px; line-height: 1; }
 .site-nav a, .studio-link a { text-decoration: none; color: var(--hover); font-weight: 500; padding: 14px 4px; }
 .site-nav a:hover, .studio-link a:hover { color: var(--ink); }
@@ -305,9 +307,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 /* 모바일 A stack (≤760): 한 칸, 영문 위 국문 아래, 사진 전폭 */
-@media (max-width: 760px) {
-  :root { --pad: 20px; }
-  .site-header { height: 60px; }
+@media (max-width: 767px) {
+  :root { --pad: 16px; }
+  .site-header { height: 72px; }
   .logo svg { width: 26px; height: 40px; }
   .site-nav { gap: 14px; font-size: 15px; }
   .site-nav a { padding: 14px 0; }
@@ -413,7 +415,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ex-desc { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
 .ex-desc .en { font-size: 19px; line-height: 1.7; }
 .ex-desc .kr { font-size: 17px; line-height: 1.9; color: var(--kr-body); }
-@media (max-width: 760px) {
+@media (max-width: 767px) {
   .ex-lead { grid-template-columns: 1fr; gap: 28px; margin-top: 28px; }
 }
 .ex-lead.solo { grid-template-columns: 1fr; }
