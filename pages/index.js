@@ -72,7 +72,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
           {groups.length > 0 && (
             <div>
               {groups.map(([label, list], gi) => (
-                <section key={label} aria-label={label} style={gi ? { marginTop: 40 } : undefined}>
+                <section key={label} aria-label={label} style={gi ? { marginTop: 'var(--sp-block)' } : undefined}>
                   <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{label}</h2>
                   {list.map((e) => (
                     <Link key={e.slug} href={`/exhibitions/${e.slug}`} className="now-row card">

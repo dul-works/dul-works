@@ -51,7 +51,7 @@ export default function Project({ p, body, buttons, works, exhibited, texts }) {
         <Body body={body} mode="column" title={p.name} />
         <div className="col">
           {works.length > 0 && (
-            <section className="sec" style={{ marginTop: 96 }}>
+            <section className="sec">
               <h2 className="sec-head" style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
                 <span className="no gray" style={{ fontSize: 15 }}>{pad2(++no)}</span>
                 <span className="t-head">works</span>
@@ -60,7 +60,7 @@ export default function Project({ p, body, buttons, works, exhibited, texts }) {
             </section>
           )}
           {(exhibited.length > 0 || texts.length > 0) && (
-            <div className="relations" style={{ marginTop: 96, paddingTop: 0 }}>
+            <div className="relations" style={{ paddingTop: 0 }}>
               {exhibited.length > 0 && <RelCol no={++no} title="exhibited" rows={exhibited.map((e) => ({ ...e, year: null }))} />}
               {texts.length > 0 && <RelCol no={++no} title="archive" rows={texts} />}
             </div>

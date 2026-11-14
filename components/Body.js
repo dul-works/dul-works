@@ -225,8 +225,10 @@ function groupLists(items) {
     const last = out[out.length - 1];
     if ((n.t === 'ul' || n.t === 'ol') && last?.t === `${n.t}-group`) last.items.push(n);
     else if (n.t === 'ul' || n.t === 'ol') out.push({ t: `${n.t}-group`, items: [n] });
+    else if (n.t === 'divider' && (!last || last.t === 'divider')) continue; // 맨 앞·연속 구분선은 하나로
     else out.push(n);
   }
+  while (out[out.length - 1]?.t === 'divider') out.pop(); // 맨 끝 구분선은 버림
   return out;
 }
 

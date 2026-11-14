@@ -66,7 +66,7 @@ export default function Exhibition({ e, poster, text, media, works, texts }) {
             {text.length > 0 && <TextPairs items={text} />}
           </div>
         </div>
-        {media.sections.length > 0 && <Body body={media} mode="parallel" title={e.name} />}
+        {media.sections.length > 0 && <div className="ex-media"><Body body={media} mode="parallel" title={e.name} /></div>}
         {works.length > 0 && (
           <section className="also rule">
             <div className="head"><h2 className="section-label">works shown</h2></div>
