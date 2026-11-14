@@ -274,8 +274,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cv-rows { list-style: none; padding: 0; }
 .cv-row { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 0.9fr); gap: 0 24px; padding: 18px 0; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.35; }
 .cv-row .yr { color: var(--gray); }
-.cv-row .kr { display: block; margin-top: 6px; font-size: 15px; }
-.cv-row .place { color: var(--kr); }
+.cv-row .sub { display: block; margin-top: 6px; font-size: 15px; color: var(--kr); }
+.cv-row .cv-kr { font-family: var(--kr-sans); font-size: 15px; color: var(--kr); }
 .cv-row a { text-decoration: none; }
 .cv-row a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
@@ -397,6 +397,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .cv-sec { grid-template-columns: 1fr; gap: 16px; margin-top: 64px; }
   .cv-sec h2 { font-size: 22px; }
   .cv-row { grid-template-columns: 1fr; gap: 4px; }
+  .cv-row .cv-kr:empty { display: none; }
   .contact { grid-template-columns: 1fr; margin-top: 24px; gap: 32px; }
   .contact .big-logo { width: 80px; }
   .contact h1 { font-size: 40px; }
@@ -410,15 +411,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .mt24 { margin-top: 24px; }
 
-/* 전시 상세: 포스터(원본 비율) | 설명 */
-.ex-lead { margin-top: 64px; display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 64px; align-items: start; }
-.ex-desc { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
-.ex-desc .en { font-size: 19px; line-height: 1.7; }
-.ex-desc .kr { font-size: 17px; line-height: 1.9; color: var(--kr-body); }
-@media (max-width: 767px) {
-  .ex-lead { grid-template-columns: 1fr; gap: 28px; margin-top: 28px; }
+/* 전시 상세: [경로·제목·본문 글] | [정보 칸·포스터 460] */
+.ex-top { margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 460px; grid-template-areas: 'head side' 'body side'; grid-template-rows: auto 1fr; column-gap: 64px; align-items: start; }
+.ex-head { grid-area: head; }
+.ex-head h1 { margin-top: 18px; }
+.ex-side { grid-area: side; }
+.ex-poster { margin-top: 24px; }
+.ex-body { grid-area: body; margin-top: 48px; display: flex; flex-direction: column; gap: 24px; }
+.ex-text { display: flex; flex-direction: column; gap: 24px; }
+.ex-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 40px; }
+.ex-row.solo { grid-template-columns: minmax(0, 720px); }
+.ex-row .en { font-size: 18px; line-height: 1.7; }
+.ex-row .kr { font-size: 16px; line-height: 1.9; color: var(--kr-body); }
+.ex-row .ex-h { font-size: 17px; font-weight: 600; color: var(--ink); }
+@media (max-width: 1100px) {
+  .ex-top { grid-template-columns: 1fr; grid-template-areas: 'head' 'side' 'body'; }
+  .ex-side { margin-top: 24px; max-width: 460px; }
 }
-.ex-lead.solo { grid-template-columns: 1fr; }
+@media (max-width: 767px) {
+  .ex-row { grid-template-columns: 1fr; row-gap: 10px; }
+  .ex-row .en { font-size: 17px; line-height: 1.65; }
+  .ex-row .kr { font-size: 16px; line-height: 1.8; }
+}
 .group-head.solo { grid-template-columns: minmax(0, 900px); }
 
 /* 로고 모핑 (Site-05): studio.edul ↗ hover·focus → 스튜디오 로고 면이 아래에서 위로 차오르고, 떼면 위에서 아래로 빠짐.

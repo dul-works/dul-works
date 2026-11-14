@@ -5,6 +5,7 @@ import { getSite, REVALIDATE } from '../lib/data';
 
 const yearSpan = (a, b) => (a && b && b !== a ? `${a} – ${b}` : a || '');
 
+// 3단: 연도 | 영문(항목명, 아래 장소 등) | 국문(Name(KR), 국문 장소). 국문 값이 없으면 빈 칸 (영문을 복사하지 않음)
 function Section({ title, rows }) {
   if (!rows.length) return null;
   return (
@@ -14,13 +15,13 @@ function Section({ title, rows }) {
         {rows.map((r) => (
           <li key={r.key} className="cv-row">
             <span className="yr">{r.year}</span>
-            <span>
+            <span className="cv-en">
               {r.href ? <Link href={r.href}>{r.en}</Link> : r.en}
-              {r.ko && r.ko !== r.en && <span className="kr" lang="ko">{r.ko}</span>}
+              {r.enSub && <span className="sub">{r.enSub}</span>}
             </span>
-            <span className="place">
-              {r.right}
-              {r.rightKr && <span className="kr" lang="ko">{r.rightKr}</span>}
+            <span className="cv-kr" lang="ko">
+              {r.ko}
+              {r.koSub && <span className="sub">{r.koSub}</span>}
             </span>
           </li>
         ))}
@@ -64,16 +65,17 @@ export default function CV({ statement, sections }) {
 export async function getStaticProps() {
   const site = await getSite();
   const { cv } = site;
+  const kr = (ko, en) => (ko && ko !== en ? ko : null);
   const ex = (kind) => site.exhibitions.filter((e) => e.kind === kind).map((e) => ({
-    key: e.slug, year: e.year, en: e.name, ko: e.nameKr, right: e.venue, rightKr: e.venueKr, href: `/exhibitions/${e.slug}`,
+    key: e.slug, year: e.year, en: e.name, enSub: e.venue, ko: kr(e.nameKr, e.name), koSub: e.venueKr, href: `/exhibitions/${e.slug}`,
   }));
   const sections = [
-    { title: 'education', rows: cv.education.map((r) => ({ key: r.id, year: yearSpan(r.year, r.endYear), en: r.place || r.name, ko: null, right: [r.name, r.client].filter(Boolean).join(', '), rightKr: r.nameKr !== r.name ? r.nameKr : null })) },
+    { title: 'education', rows: cv.education.map((r) => ({ key: r.id, year: yearSpan(r.year, r.endYear), en: r.place || r.name, enSub: [r.name, r.client].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name) })) },
     { title: 'solo exhibitions', rows: ex('solo') },
     { title: 'group exhibitions', rows: ex('group') },
-    { title: 'grants and awards', rows: cv.awards.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.place?.trim()].filter(Boolean).join(', '), ko: r.nameKr, right: r.client })) },
-    { title: 'artist in residency', rows: cv.residency.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), ko: r.nameKr, right: r.place })) },
-    { title: 'etc', rows: cv.participated.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), ko: r.nameKr, right: r.role, rightKr: r.place })) },
+    { title: 'grants and awards', rows: cv.awards.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.place?.trim()].filter(Boolean).join(', '), enSub: r.client, ko: kr(r.nameKr, r.name) })) },
+    { title: 'artist in residency', rows: cv.residency.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: r.place, ko: kr(r.nameKr, r.name) })) },
+    { title: 'etc', rows: cv.participated.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: [r.role, r.place].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name) })) },
   ];
   const statement = (site.statement?.sections || []).flatMap((s) => s.items).filter((n) => n.t === 'p').map((n) => ({ en: n.en, ko: n.ko }));
   return { props: { statement, sections }, revalidate: REVALIDATE };
