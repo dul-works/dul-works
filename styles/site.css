@@ -121,10 +121,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .now-row { display: grid; grid-template-columns: 150px 1fr; column-gap: 22px; padding: 16px 0; border-top: 1px solid var(--line); text-decoration: none; }
 .now-row .poster { width: 150px; }
 .now-row .info { display: flex; flex-direction: column; gap: 2px; font-size: 16px; }
-.about { margin-top: var(--sp-section); display: grid; grid-template-columns: 240px 1fr; gap: 48px; padding-top: var(--sp-rule); }
-.about-text { max-width: 980px; display: flex; flex-direction: column; gap: var(--sp-pair); }
-.about-text .en { font-size: 26px; line-height: 1.5; }
-.about-text .kr { font-size: 21px; line-height: 1.7; color: var(--kr-body); }
+/* about: 라벨 | 영문 | 국문 3단. 열·간격은 작품 페이지 본문(.par)과 같음: 300 | 1fr | 1fr, gap 48. 글자 크기는 W1 병기 본문 */
+.about { margin-top: var(--sp-section); display: grid; grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr); column-gap: 48px; row-gap: var(--sp-pair); padding-top: var(--sp-rule); }
+.about .section-label { grid-column: 1; grid-row: 1; }
+.about-en { grid-column: 2; grid-row: 1; font-size: 19px; line-height: 1.7; }
+.about-kr { grid-column: 3; grid-row: 1; font-size: 17px; line-height: 1.9; color: var(--kr-body); }
+.about-link { grid-column: 2; grid-row: 2; } /* 'about dul' 위치는 글 왼쪽 아래 그대로 */
 .selected-head { margin-top: var(--sp-section); padding-top: 18px; display: flex; align-items: baseline; justify-content: space-between; }
 .sel-wide { margin-top: var(--sp-block); }
 .sel-wide .t-card { font-size: 26px; }
@@ -343,9 +345,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .home-top { gap: var(--sp-section); }
   .now-row { grid-template-columns: 96px 1fr; column-gap: 16px; }
   .now-row .poster { width: 96px; }
-  .about { grid-template-columns: 1fr; gap: 14px; }
-  .about-text .en { font-size: 18px; }
-  .about-text .kr { font-size: 16px; }
+  .about { grid-template-columns: 1fr; row-gap: 14px; }
+  .about .section-label, .about-en, .about-kr, .about-link { grid-column: 1; grid-row: auto; }
+  .about-en { font-size: 17px; line-height: 1.65; }
+  .about-kr { font-size: 16px; line-height: 1.8; }
   .sel-wide .t-card { font-size: 18px; }
   .sel-alt { grid-template-columns: 1fr; gap: var(--sp-block); }
   .masonry.c2, .masonry.c3 { grid-template-columns: 1fr; }

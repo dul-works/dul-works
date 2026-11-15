@@ -94,11 +94,9 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
         {about && (
           <section className="about rule" aria-labelledby="about-h">
             <h2 id="about-h" className="section-label">about</h2>
-            <div className="about-text">
-              {about.en && <p className="en">{about.en}</p>}
-              {about.ko && <p className="kr" lang="ko">{about.ko}</p>}
-              <div><Link href="/cv#statement" className="tlink" style={{ fontSize: 17 }}>about dul</Link></div>
-            </div>
+            {about.en && <p className="about-en">{about.en}</p>}
+            {about.ko && <p className="about-kr" lang="ko">{about.ko}</p>}
+            <div className="about-link"><Link href="/cv#statement" className="tlink" style={{ fontSize: 17 }}>about dul</Link></div>
           </section>
         )}
 
