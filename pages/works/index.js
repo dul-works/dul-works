@@ -45,7 +45,11 @@ export default function Works({ works, projects, exhibitions }) {
     if (other.length) groups.push({ key: 'other-works', head: null, works: other });
   } else if (group === 'exhibition') {
     groups = exhibitions.map((e) => ({ key: e.slug, poster: e.cover, link: `/exhibitions/${e.slug}`, name: e.name, head: { label: `${e.kind} exhibition`, name: e.name, nameKr: e.nameKr, sub: [e.venue, e.periodLabel].filter(Boolean).join(', '), subKr: e.venueKr, link: `/exhibitions/${e.slug}` }, works: pick(works.filter((w) => w.exhibitionIds.includes(e.id)).map((w) => w.id)) }));
-    if (sort === 'oldest') groups.reverse();
+    // 개인전 먼저, 그 아래 단체전. 각 묶음 안에서는 시작일 최신순 (oldest면 각 묶음 안에서 뒤집음, 개인전이 먼저인 것은 그대로)
+    const kindOf = (g) => exhibitions.find((e) => e.slug === g.key)?.kind;
+    const solo = groups.filter((g) => kindOf(g) === 'solo');
+    const rest = groups.filter((g) => kindOf(g) !== 'solo');
+    groups = sort === 'oldest' ? [...solo.reverse(), ...rest.reverse()] : [...solo, ...rest];
   } else {
     const years = [...new Set(works.map((w) => w.year))].sort((a, b) => (b ?? -1) - (a ?? -1));
     groups = years.map((y) => ({ key: `y${y ?? 'none'}`, head: { label: 'year', name: y ?? 'year unknown' }, works: order(works.filter((w) => w.year === y)) }));
