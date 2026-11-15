@@ -74,17 +74,21 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
               {groups.map(([label, list], gi) => (
                 <section key={label} aria-label={label} style={gi ? { marginTop: 'var(--sp-block)' } : undefined}>
                   <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{label}</h2>
-                  {list.map((e) => (
-                    <Link key={e.slug} href={`/exhibitions/${e.slug}`} className="now-row card">
-                      <Cover src={e.cover} className="poster" alt={`${e.name} poster`} />
-                      <div className="now-info">
-                        <div className="now-title"><TitlePair name={e.name} nameKr={e.nameKr} as="h3" /></div>
-                        {e.venue && <span>{e.venue}</span>}
-                        {e.venueKr && <span className="kr" lang="ko" style={{ fontSize: 15 }}>{e.venueKr}</span>}
-                        <span className="gray" style={{ fontSize: 14, marginTop: 4 }}>{e.periodLabel}</span>
-                      </div>
-                    </Link>
-                  ))}
+                  {list.map((e) => {
+                    const inner = (
+                      <>
+                        <Cover src={e.cover} className="poster" alt={`${e.name} poster`} />
+                        <div className="now-info">
+                          <div className="now-title"><TitlePair name={e.name} nameKr={e.nameKr} as="h3" /></div>
+                          {e.venue && <span>{e.venue}</span>}
+                          {e.venueKr && <span className="kr" lang="ko" style={{ fontSize: 15 }}>{e.venueKr}</span>}
+                          <span className="gray" style={{ fontSize: 14, marginTop: 4 }}>{e.periodLabel}</span>
+                        </div>
+                      </>
+                    );
+                    // 페이지가 없는 전시(Post 꺼짐)는 링크 없이
+                    return e.slug ? <Link key={e.id} href={`/exhibitions/${e.slug}`} className="now-row card">{inner}</Link> : <div key={e.id} className="now-row">{inner}</div>;
+                  })}
                 </section>
               ))}
             </div>
@@ -153,7 +157,7 @@ export async function getStaticProps() {
     props: {
       hero: hero || null,
       selected,
-      ...exhibitionsOnHome(site.exhibitions),
+      ...exhibitionsOnHome([...site.exhibitions, ...site.hiddenExhibitions]),
       about: first ? { en: rtText(first.en) || null, ko: rtText(first.ko) || null } : null,
       sloganKr: krHead ? rtText(krHead.ko).replace(/[.\s]*$/, '.') : SLOGAN_KR,
     },

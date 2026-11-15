@@ -89,11 +89,9 @@ export async function getStaticProps({ params }) {
   const e = site.exhibitions.find((x) => x.slug === decodeURIComponent(params.slug));
   if (!e) return { notFound: true, revalidate: 60 };
   const body = await getPageBody(e.id);
-  // 예전 노션 데이터는 Description에 장소를 적어 둠 → 장소와 같으면 설명으로 쓰지 않음
-  const same = (a, b) => (a || '').trim().toLowerCase() === (b || '').trim().toLowerCase();
   return {
     props: {
-      e: { ...e, description: same(e.description, e.venue) ? null : e.description, descriptionKr: same(e.descriptionKr, e.venueKr) ? null : e.descriptionKr },
+      e,
       poster: e.cover || firstImage(body),
       // 글은 제목 아래로, 사진·영상·표는 아래 그리드로 (섹션 제목은 글 쪽에)
       text: body.sections.flatMap((sec) => [...(sec.head ? [{ t: 'h', ...sec.head }] : []), ...sec.items.filter((n) => TEXT.has(n.t))]),
