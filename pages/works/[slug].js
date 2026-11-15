@@ -117,7 +117,7 @@ export async function getStaticProps({ params }) {
       credits,
       exhibited: [...site.exhibitions, ...site.hiddenExhibitions].filter((e) => a.exhibitionIds.includes(e.id)).sort((x, y) => (y.start || `${y.year}`).localeCompare(x.start || `${x.year}`)).map(exhibitedRow),
       texts: site.texts.filter((t) => t.artworkIds.includes(a.id)).map(textRow),
-      also: project ? ordered.filter((x) => x.projectId === project.id && x.id !== a.id).slice(0, 4).map(card) : [],
+      also: project ? ordered.filter((x) => x.projectId === project.id && x.id !== a.id).map(card) : [],
       prev: pn(ordered[i - 1]),
       next: pn(ordered[i + 1]),
     },
