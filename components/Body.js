@@ -1,6 +1,6 @@
 // 노션 본문 렌더러 (Dul-W1). mode: 'column' = 프로젝트(Site-04), 'parallel' = 작품·글(Site-10, Site-09)
 import { useEffect, useRef, useState } from 'react';
-import { Rich, Masonry } from './ui';
+import { Rich, Masonry, ext } from './ui';
 
 const hasHangul = (rt) => /[가-힣]/.test((rt || []).map((r) => r.x).join(''));
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -143,7 +143,7 @@ const domain = (u) => {
 
 function Bookmark({ n }) {
   return (
-    <a className="bookmark" href={n.url}>
+    <a className="bookmark" href={n.url} {...ext(n.url)}>
       <span className="name">{n.cap?.en || domain(n.url)} <span aria-hidden="true">↗</span></span>
       {n.cap && <span className="cap">{n.cap.ko && <span lang="ko">{n.cap.ko}</span>}</span>}
       <span className="dom">{domain(n.url)}</span>
@@ -154,7 +154,7 @@ function Bookmark({ n }) {
 export function FileButton({ n }) {
   const en = n.cap?.en || n.name || 'file';
   return (
-    <a className="pill" href={n.src || n.url}>
+    <a className="pill" href={n.src || n.url} {...ext(n.src || n.url)}>
       {en}
       {n.cap?.ko && <span className="kr" lang="ko">{n.cap.ko}</span>}
     </a>

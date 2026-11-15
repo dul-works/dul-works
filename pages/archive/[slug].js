@@ -1,7 +1,7 @@
 // 글 읽기 (Site-09): EN | KR 두 열. 모바일은 both / EN / KR 전환
 import { useState } from 'react';
 import Link from 'next/link';
-import { Layout, Rich } from '../../components/ui';
+import { Layout, Rich, ext } from '../../components/ui';
 import { getSite, getPageBody, REVALIDATE } from '../../lib/data';
 
 function Column({ items, side }) {
@@ -65,7 +65,7 @@ export default function Read({ t, items, lang, about }) {
               <h2 className="section-label">source</h2>
               <div className="rows">
                 {t.publication && <span>{t.publication}{t.year ? `, ${t.year}` : ''}</span>}
-                {t.url && <a className="tlink" href={t.url} style={{ minHeight: 'auto' }}>original{t.isFile ? ' (pdf)' : ''}</a>}
+                {t.url && <a className="tlink" href={t.url} {...ext(t.url)} style={{ minHeight: 'auto' }}>original{t.isFile ? ' (pdf)' : ''}</a>}
               </div>
             </section>
           )}

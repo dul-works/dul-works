@@ -1,6 +1,6 @@
 // 프로젝트 (Site-04, 연구 페이지): column 모드, 섹션 번호 자동, 끝에 works · exhibited · archive
 import Link from 'next/link';
-import { Layout, WorkCard, Masonry } from '../../components/ui';
+import { Layout, WorkCard, Masonry, ext } from '../../components/ui';
 import Body, { FileButton } from '../../components/Body';
 import { getSite, getPageBody, byNewest, card, exhibitedRow, textRow, periodCmp, REVALIDATE } from '../../lib/data';
 
@@ -17,7 +17,7 @@ function RelCol({ no, title, rows }) {
         {rows.map((r) => (
           <li key={r.key} style={{ fontSize: 16, lineHeight: 1.45 }}>
             {r.href ? (
-              <a href={r.href} style={{ textDecoration: 'none' }}>
+              <a href={r.href} {...ext(r.href)} style={{ textDecoration: 'none' }}>
                 <span>{r.en}{r.year ? `, ${r.year}` : ''}{r.external && <span aria-hidden="true"> ↗</span>}</span>
                 {r.ko && <span className="kr" lang="ko" style={{ display: 'block', fontSize: 15 }}>{r.ko}</span>}
               </a>

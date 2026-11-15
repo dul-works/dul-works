@@ -1,7 +1,7 @@
 // archive (Site-08, 메뉴 이름 texts → archive): RELATED DB. 필터 = Type, 정렬 newest / oldest
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../components/ui';
+import { Layout, ext } from '../../components/ui';
 import { getSite, REVALIDATE } from '../../lib/data';
 
 export default function Texts({ texts, types }) {
@@ -41,7 +41,7 @@ export default function Texts({ texts, types }) {
               return (
                 <li key={t.slug} className="text-row">
                   <div>
-                    <h2 style={{ fontWeight: 'inherit' }}>{t.href ? <a className="title" href={t.href}>{Title}</a> : Title}</h2>
+                    <h2 style={{ fontWeight: 'inherit' }}>{t.href ? <a className="title" href={t.href} {...ext(t.href)}>{Title}</a> : Title}</h2>
                     {t.on.length > 0 && (
                       <p className="on">on {t.on.map((o) => o.en).join(', ')}{t.on.some((o) => o.ko && o.ko !== o.en) && <span className="kr" lang="ko">{t.on.map((o) => o.ko || o.en).join(', ')}</span>}</p>
                     )}

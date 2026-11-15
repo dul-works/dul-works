@@ -113,7 +113,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .crumbs span[aria-current] { color: var(--ink); }
 
 /* ---------- 홈 (Site-01) ---------- */
-.hero { width: 100%; } /* 원본 비율 그대로 */
+.hero { width: 100%; } /* 컨테이너 폭 안, 원본 비율 그대로 */
+.hero .cover-img { width: auto; max-width: 100%; max-height: 72vh; } /* 화면보다 길어지지 않게 (자르지 않고 폭이 줄어듦) */
 .hero-meta { margin-top: 12px; }
 .home-top { margin-top: var(--sp-block); display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; }
 .home-top.solo { grid-template-columns: 1fr; }
@@ -147,6 +148,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .group + .group { border-top: 1px solid var(--ink); }
 .group-head { display: grid; grid-template-columns: 300px 1fr 1fr; gap: 48px; margin-bottom: var(--sp-block); }
 .group-head .desc { font-size: 19px; line-height: 1.7; }
+/* 영문·국문 프로젝트명은 같은 서체(Gmarket Sans)라 굵기도 500으로 통일. 설명은 프로젝트 영문명 높이에서 시작 (라벨 줄 21 + 간격 4 + 위 여백 3 = 28) */
+.group-head .t-proj { font-weight: 500; }
+.group-head .desc, .group-head .desc-kr { margin-top: 28px; }
 .group-head .desc-kr { font-family: var(--kr-sans); font-size: 17px; line-height: 1.9; color: var(--kr-body); }
 .group-head .sub { margin-top: 8px; font-size: 16px; }
 .other-works { border-top: 1px solid var(--line); padding-top: 24px; }
@@ -299,11 +303,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cv-row .cv-kr { font-family: var(--kr-sans); font-size: 15px; color: var(--kr); }
 .cv-row a { text-decoration: none; }
 .cv-row a:hover { text-decoration: underline; text-underline-offset: 4px; }
-/* 위쪽 이름·출생·statement 행: 이력과 같은 열, 첫 줄 선 없음 */
-.cv-sec.cv-intro { margin-top: var(--sp-top); }
-.cv-intro .cv-row:first-child { border-top: 0; padding-top: 0; }
-.cv-intro .cv-stmt { line-height: 1.7; border-top: 0; padding: 0 0 14px; }
-.cv-intro .cv-stmt .cv-kr { line-height: 1.85; color: var(--kr-body); }
+/* cv 맨 위 Artist Statement: 영문 | 국문 2열, 문단 단위 위쪽 정렬. 노션 굵은 글씨 = 굵기 + 글자 크기 한 단계 크게 (cv에만) */
+.cv-statement { margin-top: var(--sp-top); display: flex; flex-direction: column; gap: var(--sp-para); }
+.stmt-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 48px; align-items: start; }
+.stmt-en { font-size: 17px; line-height: 1.75; }
+.stmt-kr { font-family: var(--kr-sans); font-size: 16px; line-height: 1.9; color: var(--kr-body); }
+.stmt-en strong, .stmt-kr strong { font-weight: 600; color: var(--ink); line-height: 1.3; }
+.stmt-en strong { font-size: 21px; }
+.stmt-kr strong { font-size: 20px; }
 
 /* ---------- contact (Dul-P5) ---------- */
 .contact { margin-top: var(--sp-top); display: grid; grid-template-columns: 300px 1fr; gap: 48px; }
@@ -371,6 +378,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .works-bar .sort { margin-left: 0; }
   .group-head { grid-template-columns: 1fr; gap: 14px; }
   .group-head > :first-child { grid-column: auto; }
+  .group-head .desc, .group-head .desc-kr { margin-top: 0; }
   .group-head .desc { font-size: 15px; line-height: 1.6; }
   .group-head .desc-kr { font-size: 14px; line-height: 1.75; }
   .with-poster { grid-template-columns: 1fr; gap: 32px; }
@@ -414,7 +422,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .cv-sec h2 { font-size: 22px; }
   .cv-row { grid-template-columns: 1fr; gap: 4px; }
   .cv-row .cv-kr:empty { display: none; }
-  .cv-intro > span:first-child { display: none; }
+  .stmt-row { grid-template-columns: 1fr; row-gap: var(--sp-pair); }
+  .stmt-en strong { font-size: 19px; }
+  .stmt-kr strong { font-size: 18px; }
     .contact { grid-template-columns: 1fr; gap: var(--sp-block); }
   .contact .big-logo { width: 80px; }
   .contact h1 { font-size: 40px; }

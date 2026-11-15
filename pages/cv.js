@@ -34,22 +34,14 @@ export default function CV({ statement, sections }) {
       <div className="wrap">
         {/* 위쪽도 이력과 같은 3단: 라벨 | 영문 | 국문 (열 위치 x가 아래 이력 행과 같음) */}
         <h1 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>cv — dul</h1>
-        <section className="cv-sec cv-intro" aria-label="about">
-          <span aria-hidden="true" />
-          <ul className="cv-rows">
-            <li className="cv-row">
-              <span className="yr">born</span>
-              <span className="cv-en">2000, Seoul</span>
-              <span className="cv-kr" lang="ko">2000, 서울</span>
-            </li>
-            {statement.map((p, i) => (
-              <li key={i} className="cv-row cv-stmt" id={i === 0 ? 'statement' : undefined}>
-                <span className="yr">{i === 0 ? 'statement' : ''}</span>
-                <span className="cv-en">{p.en && <Rich rt={p.en} />}</span>
-                <span className="cv-kr" lang="ko">{p.ko && <Rich rt={p.ko} lang="ko" />}</span>
-              </li>
-            ))}
-          </ul>
+        {/* Artist Statement: 이력 위에 영문 | 국문 2열 (문단끼리 짝, 라벨 열 없음). 노션에서 굵게 한 부분은 크기도 키움 */}
+        <section id="statement" className="cv-statement" aria-label="artist statement">
+          {statement.map((p, i) => (
+            <div key={i} className="stmt-row">
+              <p className="stmt-en">{p.en && <Rich rt={p.en} />}</p>
+              <p className="stmt-kr" lang="ko">{p.ko && <Rich rt={p.ko} lang="ko" />}</p>
+            </div>
+          ))}
         </section>
         {sections.map((s) => <Section key={s.title} {...s} />)}
       </div>

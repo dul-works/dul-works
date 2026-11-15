@@ -4,6 +4,20 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 export const SITE = 'https://dul-works.com';
+const SELF_HOSTS = ['dul-works.com', 'www.dul-works.com', 'dev.dul-works.com'];
+
+/** 다른 도메인(PDF·R2 파일 포함)으로 가는 http(s) 링크인지. mailto·tel·사이트 안 주소는 아님 */
+export function isExternal(href) {
+  if (!href) return false;
+  try {
+    const u = new URL(href, SITE);
+    return /^https?:$/.test(u.protocol) && !SELF_HOSTS.includes(u.hostname);
+  } catch {
+    return false;
+  }
+}
+/** <a {...ext(href)}>: 외부 링크는 새 탭 */
+export const ext = (href) => (isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 export const STUDIO = 'https://studio-edul.com';
 export const EMAIL = 'easyone.work@gmail.com';
 export const INSTAGRAM = 'https://www.instagram.com/easy_dul/';
@@ -98,15 +112,15 @@ export function Layout({ title, description, image, children }) {
           ))}
         </nav>
         <div className="studio-link">
-          <a href={STUDIO}>studio.edul <span aria-hidden="true">↗</span></a>
+          <a href={STUDIO} {...ext(STUDIO)}>studio.edul <span aria-hidden="true">↗</span></a>
         </div>
       </header>
       <main id="main">{children}</main>
       <footer className="site-footer">
         <div className="wrap">
           <span>© dul</span>
-          <a href={INSTAGRAM}>instagram</a>
-          <a href={STUDIO}>studio.edul <span aria-hidden="true">↗</span></a>
+          <a href={INSTAGRAM} {...ext(INSTAGRAM)}>instagram</a>
+          <a href={STUDIO} {...ext(STUDIO)}>studio.edul <span aria-hidden="true">↗</span></a>
         </div>
       </footer>
     </>
@@ -123,7 +137,7 @@ export function Rich({ rt, lang }) {
     if (r.i && lang !== 'ko') el = <em>{el}</em>;
     if (r.h) {
       const internal = r.h.startsWith('/');
-      el = internal ? <Link className="rt-a" href={r.h}>{el}</Link> : <a className="rt-a" href={r.h}>{el}</a>;
+      el = internal ? <Link className="rt-a" href={r.h}>{el}</Link> : <a className="rt-a" href={r.h} {...ext(r.h)}>{el}</a>;
     }
     return <span key={i}>{el}</span>;
   });
@@ -194,7 +208,7 @@ export function Two({ en, ko, className = '' }) {
   );
 }
 
-const RowLink = ({ href, children }) => (href ? <a href={href}>{children}</a> : <span>{children}</span>);
+const RowLink = ({ href, children }) => (href ? <a href={href} {...ext(href)}>{children}</a> : <span>{children}</span>);
 
 export function RelationLists({ exhibited, texts }) {
   if (!exhibited.length && !texts.length) return null;

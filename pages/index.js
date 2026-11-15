@@ -43,12 +43,15 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
     <Layout description={about?.en || SLOGAN_EN} image={hero?.cover}>
       <h1 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>dul — new media artist, Seoul</h1>
       {hero && !hero.portrait && (
-        <Link href={`/works/${hero.slug}`} className="card">
-          <Cover src={hero.cover} className="hero" alt={hero.name} eager />
-          <div className="wrap hero-meta">
-            <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
-          </div>
-        </Link>
+        // 가로 이미지: 본문과 같은 컨테이너(좌우 여백·최대 폭) 안에 원본 비율로, 높이는 화면의 72%까지
+        <div className="wrap">
+          <Link href={`/works/${hero.slug}`} className="card hero-wide">
+            <Cover src={hero.cover} className="hero" alt={hero.name} eager />
+            <div className="hero-meta">
+              <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
+            </div>
+          </Link>
+        </div>
       )}
       {hero && hero.portrait && (
         // 세로 이미지: 왼쪽에 콘텐츠 폭의 1/2, 그래도 화면보다 길면 1/3. 제목·연도는 오른쪽 아래
