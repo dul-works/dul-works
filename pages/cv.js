@@ -30,9 +30,9 @@ function Section({ title, rows }) {
   );
 }
 
-export default function CV({ statement, sections, description }) {
+export default function CV({ statement, sections }) {
   return (
-    <Layout title="cv" description={description}>
+    <Layout title="cv" description="dul (Lee Jiwon), new media artist. Exhibitions, education, awards and residencies.">
       <div className="wrap">
         {/* 위쪽도 이력과 같은 3단: 라벨 | 영문 | 국문 (열 위치 x가 아래 이력 행과 같음) */}
         <section className="cv-sec cv-intro" aria-label="about">
@@ -42,6 +42,11 @@ export default function CV({ statement, sections, description }) {
               <span className="yr">name</span>
               <h1 className="cv-en t-page">dul</h1>
               <span className="cv-kr t-page-kr" lang="ko">둘</span>
+            </li>
+            <li className="cv-row">
+              <span className="yr">born</span>
+              <span className="cv-en">2000, Seoul</span>
+              <span className="cv-kr" lang="ko">2000, 서울</span>
             </li>
             {statement.map((p, i) => (
               <li key={i} className="cv-row cv-stmt" id={i === 0 ? 'statement' : undefined}>
@@ -74,7 +79,5 @@ export async function getStaticProps() {
     { title: 'etc', rows: cv.participated.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: [r.role, r.place].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name), koSub: r.placeKr })) },
   ];
   const statement = (site.statement?.sections || []).flatMap((s) => s.items).filter((n) => n.t === 'p').map((n) => ({ en: n.en, ko: n.ko }));
-  // 검색·공유용 설명 = 노션 Artist Statement 첫 문단 영문 (직접 쓴 문구 없음)
-  const description = statement[0]?.en ? statement[0].en.map((r) => r.x).join('').slice(0, 200) : null;
-  return { props: { statement, sections, description }, revalidate: REVALIDATE };
+  return { props: { statement, sections }, revalidate: REVALIDATE };
 }

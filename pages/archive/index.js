@@ -64,7 +64,7 @@ export async function getStaticProps() {
   const names = {};
   for (const a of site.artworks) names[a.id] = { en: a.name, ko: a.nameKr };
   for (const p of site.projects) if (!p.etc) names[p.id] = { en: p.name, ko: p.nameKr };
-  for (const e of site.exhibitions) names[e.id] = { en: e.name, ko: e.nameKr };
+  for (const e of [...site.exhibitions, ...site.hiddenExhibitions]) names[e.id] = { en: e.name, ko: e.nameKr }; // Post 꺼진 전시도 글자로
   const texts = site.texts.map((t) => ({
     slug: t.slug,
     name: t.name,

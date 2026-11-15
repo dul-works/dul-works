@@ -52,12 +52,11 @@ export default function Read({ t, items, lang, about }) {
             <section>
               <h2 className="section-label">about</h2>
               <div className="rows">
-                {about.map((a) => (
-                  <Link key={a.href} href={a.href} style={{ textDecoration: 'none' }}>
-                    {a.en}
-                    {a.ko && <span className="kr" lang="ko">{a.ko}</span>}
-                  </Link>
-                ))}
+                {about.map((a) => {
+                  const inner = (<>{a.en}{a.ko && <span className="kr" lang="ko">{a.ko}</span>}</>);
+                  // 페이지가 없는 전시(Post 꺼짐)는 링크 없이 글자만
+                  return a.href ? <Link key={a.en} href={a.href} style={{ textDecoration: 'none' }}>{inner}</Link> : <span key={a.en}>{inner}</span>;
+                })}
               </div>
             </section>
           )}
@@ -97,7 +96,7 @@ export async function getStaticProps({ params }) {
   const about = [
     ...site.artworks.filter((a) => t.artworkIds.includes(a.id)).map((a) => ({ href: `/works/${a.slug}`, en: a.name, ko: a.nameKr })),
     ...site.projects.filter((p) => !p.etc && t.workIds.includes(p.id)).map((p) => ({ href: `/projects/${p.slug}`, en: `project ‘${p.name}’`, ko: p.nameKr || null })),
-    ...site.exhibitions.filter((e) => t.workIds.includes(e.id)).map((e) => ({ href: `/exhibitions/${e.slug}`, en: e.name, ko: e.nameKr })),
+    ...[...site.exhibitions, ...site.hiddenExhibitions].filter((e) => t.workIds.includes(e.id)).map((e) => ({ href: e.slug && site.exhibitions.includes(e) ? `/exhibitions/${e.slug}` : null, en: e.name, ko: e.nameKr })),
   ];
   return { props: { t: { ...t, author }, items, lang: body.lang, about }, revalidate: REVALIDATE };
 }
