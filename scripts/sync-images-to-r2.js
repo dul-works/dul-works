@@ -5,7 +5,8 @@
 // - Notion에서 사라진 이미지는 R2에서도 삭제 (조회 오류가 있던 회차는 삭제하지 않음)
 // - 끝나면 manifest.json에 R2 파일 목록 기록 → 사이트는 목록에 없는 이미지를 Notion 주소로 임시 표시
 // - public/assets/{images,videos,pdf} 의 로컬 파일도 함께 업로드 (images는 루트 키, videos/·pdf/ 접두어)
-// - Notion 커버, Files 속성, 페이지 본문 이미지 블록을 모두 수집
+// - Notion 커버, Files 속성, 페이지 본문(열·토글 안쪽 포함)의 이미지·영상·소리·파일·pdf 블록을 모두 수집
+// - 이미지만 WebP로 바꾸고, 나머지는 원본 그대로
 // - Notion 원본은 WebP(긴 변 2400px, 품질 85)로 변환해서 업로드
 // - R2 키 규칙은 사이트와 공유 (lib/r2-key.js)
 // - dev/main 브랜치가 같은 R2 버킷을 참조하므로 한 번 올리면 양쪽에서 공유됨
@@ -43,6 +44,10 @@ const CONTENT_TYPES = {
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
   '.pdf': 'application/pdf',
+  '.mov': 'video/quicktime',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.m4a': 'audio/mp4',
 };
 
 function getContentType(key) {
@@ -162,28 +167,27 @@ async function fetchBlockChildren(blockId, apiKey) {
   return results;
 }
 
-function addImageBlock(block, found) {
-  const image = block.image;
-  const url = image.file?.url || image.external?.url;
+// 이미지는 캡션 기반 파일명(사이트와 같은 규칙), 영상·소리·파일·pdf는 URL 파일명 그대로
+function addMediaBlock(block, found) {
+  const value = block[block.type];
+  if (!value) return;
+  // 외부 이미지는 예전처럼 복사해 두고, 외부 영상·파일(YouTube 등)은 올리지 않음
+  if (value.type !== 'file' && block.type !== 'image') return;
+  const url = value.file?.url || value.external?.url;
   if (!url) return;
-  const key = r2KeyFromUrl(url, blockImageFilename(image, url));
+  const key = block.type === 'image' ? r2KeyFromUrl(url, blockImageFilename(value, url)) : r2KeyFromUrl(url);
   if (key) found.set(key, url);
 }
 
-// 페이지 최상위 + column_list > column 안의 이미지 블록 수집
-async function collectBlockImages(pageId, apiKey, found) {
-  const blocks = await fetchBlockChildren(pageId, apiKey);
+const MEDIA_BLOCKS = new Set(['image', 'video', 'audio', 'file', 'pdf']);
 
+// 페이지 본문 전체(열·토글·목록 안쪽 포함)의 미디어 블록 수집. 하위 페이지·DB 보기는 제외
+async function collectBlockImages(blockId, apiKey, found, depth = 0) {
+  const blocks = await fetchBlockChildren(blockId, apiKey);
   for (const block of blocks) {
-    if (block.type === 'image') addImageBlock(block, found);
-    if (block.type !== 'column_list') continue;
-
-    const columns = await fetchBlockChildren(block.id, apiKey);
-    for (const column of columns) {
-      const columnBlocks = await fetchBlockChildren(column.id, apiKey);
-      for (const b of columnBlocks) {
-        if (b.type === 'image') addImageBlock(b, found);
-      }
+    if (MEDIA_BLOCKS.has(block.type)) addMediaBlock(block, found);
+    if (block.has_children && depth < 6 && block.type !== 'child_page' && block.type !== 'child_database') {
+      await collectBlockImages(block.id, apiKey, found, depth + 1);
     }
   }
 }
@@ -301,7 +305,15 @@ async function main() {
   // 2) Notion 이미지 수집 — 하나라도 조회 실패하면 이번 회차는 삭제하지 않음
   console.log('\n📡 Notion 데이터 로드 중...');
   let scanComplete = true;
-  const databaseIds = [NOTION_DB_WORK, NOTION_DB_ARTWORK, NOTION_DB_RELATED].filter(Boolean);
+  // NOTION_DB_RELATED가 data source id라 조회가 안 될 수 있어 WORKS.Related 관계의 DB id를 우선 씀
+  let relatedDbId = NOTION_DB_RELATED;
+  try {
+    const workDb = await notionCall('GET', `/v1/databases/${NOTION_DB_WORK.trim().replace(/-/g, '')}`, NOTION_API_KEY);
+    relatedDbId = workDb.properties?.Related?.relation?.database_id || relatedDbId;
+  } catch (err) {
+    console.warn(`⚠️  WORKS DB 정보 조회 실패: ${err.message}`);
+  }
+  const databaseIds = [NOTION_DB_WORK, NOTION_DB_ARTWORK, relatedDbId].filter(Boolean);
   const pages = [];
   for (const dbId of databaseIds) {
     try {
@@ -329,7 +341,8 @@ async function main() {
   // 이미 있어도 최적화 전 원본 크기면 다시 올림
   const pending = [...found].filter(([key]) => {
     const size = existingKeys.get(key);
-    if (size !== undefined && size <= UNOPTIMIZED_SIZE) { skipped++; return false; }
+    const isImage = /\.(jpe?g|png|gif|webp)$/i.test(key);
+    if (size !== undefined && (!isImage || size <= UNOPTIMIZED_SIZE)) { skipped++; return false; }
     return true;
   });
   console.log(`⬆️  업로드 대상: ${pending.length}개 (동시 ${CONCURRENCY}개)`);
@@ -337,7 +350,8 @@ async function main() {
   await runPool(pending, CONCURRENCY, async ([key, url]) => {
     try {
       const original = await withRetry(() => downloadToBuffer(url));
-      const { body, contentType } = await optimizeImage(original);
+      const isImage = /\.(jpe?g|png|gif|webp|heic|tiff?)$/i.test(key) || !path.extname(key);
+      const { body, contentType } = isImage ? await optimizeImage(original) : { body: original, contentType: null };
       await withRetry(() => upload(s3, R2_BUCKET_NAME, key, body, contentType || getContentType(key)));
       existingKeys.set(key, body.length);
       console.log(`✅ 업로드(Notion): ${key} (${(original.length / 1e6).toFixed(1)}MB → ${(body.length / 1e6).toFixed(2)}MB)`);

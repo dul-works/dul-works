@@ -1,66 +1,43 @@
-# Portfolio Website
+# dul-works.com
 
-개인 포트폴리오 웹사이트로, 작품, 전시, 프로젝트를 소개하는 아티스트 포트폴리오 사이트입니다.
+작가 dul(이지원)의 포트폴리오. Next.js 14(pages router) + Notion API + Cloudflare R2, Vercel 배포.
+디자인 기준: Design 캔버스 `dul` 페이지(Dul-W1 렌더러, Dul-W2 속성 지도, Site-01/04/07/08/09, Dul-P2/P3/P5, 모바일 Dul-M1·M4).
 
-## 소개
+## 페이지
 
-이 웹사이트는 Next.js와 Notion API를 활용하여 구축된 포트폴리오 플랫폼입니다. Notion을 CMS(Content Management System)로 사용하여 작품, 전시, 프로젝트 정보를 관리하고, 이를 동적으로 웹사이트에 표시합니다.
+| 주소 | 내용 | 노션 |
+|---|---|---|
+| `/` | 대표 사진, 문장, now on view · upcoming, about, selected works | ARTWORK `Selected`·`Order`, WORKS 전시 `Current` 체크(시작일이 오늘 뒤면 upcoming, 나머지 now on view), Artist Statement |
+| `/works` | group by project / exhibition / year, sort newest / oldest | ARTWORK, WORKS |
+| `/works/[slug]` | 작품 상세 (EN \| KR 두 열 본문 + 갤러리) | ARTWORK (`Slug`) |
+| `/exhibitions/[slug]` | 전시 상세 (포스터, 기간·장소·종류, 본문 EN \| KR, 출품작, 관련 글) | WORKS `Class = SOLO/GROUP EXHIBITION`, 페이지 커버 = 포스터 |
+| `/projects/[slug]` | 프로젝트 연구 페이지 (영문 아래 국문, 섹션 번호) | WORKS `Class = PROJECT` |
+| `/archive`, `/archive/[slug]` | 아카이브(예전 texts) 목록, 읽기 (`Content = Text`인 글만 읽기 페이지, 나머지는 바깥 링크) | RELATED |
+| `/cv` | 학력·전시·수상·레지던시·참여작 (전시는 WORKS에서) | CV, WORKS |
+| `/contact` | 연락처 | — |
 
-## 주요 기능
+예전 주소(`/work`, `/work/[이름]`, `/project/…`, `/exhibition/…` → `/exhibitions/…`, `/timeline`, `/studio-edul`)는 `next.config.js`에서 새 주소로 넘깁니다.
 
-### 📁 WORK
-- **프로젝트**: 진행 중인 프로젝트들을 카테고리별로 탐색
-- **전시**: 개인전 및 그룹전 정보와 상세 내용
-- **타임라인**: 시간순으로 정리된 작품 및 전시 이력
+## 이미지
 
-각 작품과 전시는 상세 페이지를 통해 더 자세한 정보를 확인할 수 있습니다.
+사이트 어디서도 이미지를 자르지 않습니다(원본 비율, 폭만 맞춤). 카드 묶음은 `components/ui.js`의 `Masonry`로 열 너비·간격만 맞추고 높이는 이미지대로 쌓습니다. 이미지가 없는 칸만 4:3 빈 칸입니다.
 
-### 📄 CV
-이력서 페이지로, 학력, 경력, 수상 내역 등을 카테고리별로 정리하여 표시합니다.
+## 노션 → 웹
 
-### 🎨 작품 상세 페이지
-- 작품 이미지 갤러리
-- 작품 설명 (영문)
-- 작품 정보 (크기, 재료 등)
+- 본문은 "영문 전체 → 구분선 → 국문 전체". `lib/blocks.js`가 구분선에서 나누고, 제목 순서로 섹션을, 소제목·문단 순서로 짝지어 `{t, en, ko}` 블록으로 만듭니다. 미디어는 영문 쪽만 씁니다.
+- `[글 | 이미지]` 열 = 본문 + 갤러리, `[EN 글 | KR 글]` 열 = 짝, 그 밖의 열은 열 그대로.
+- 값이 비면 W1 G절대로: 국문 속성이 없으면 영문 줄만, `Year`가 없으면 `Timeline` 관계의 연도, 커버가 없으면 본문 첫 이미지, 관계가 없으면 섹션째 생략.
+- 렌더링은 ISR(`revalidate` 10분, `lib/data.js`의 `REVALIDATE`).
 
-### 🖼️ 전시 상세 페이지
-- 전시 개요 및 설명
-- 전시에 포함된 작품 목록
-- 관련 자료 및 링크
+## 미디어 (R2)
 
-### 🔬 프로젝트 상세 페이지
-- 프로젝트 개요 및 기술적 설명
-- 프로젝트 진행 과정 및 워크플로우
-- 프로젝트 작품 갤러리
+`scripts/sync-images-to-r2.js`가 노션 커버·Files 속성·본문의 이미지/영상/소리/파일/pdf를 R2로 복사하고 `manifest.json`을 씁니다(이미지는 WebP 변환). 사이트는 manifest에 있는 미디어를 R2 주소로, 아직 없는 것은 노션 원본 주소로 잠깐 보여 줍니다. GitHub Actions(`.github/workflows/sync-images.yml`)가 dev 푸시와 15분마다 실행합니다.
 
-## 기술 스택
+## 서체
 
-- **Next.js**: React 기반의 서버 사이드 렌더링 프레임워크
-- **Notion API**: 콘텐츠 관리 시스템으로 사용
-- **Tailwind CSS**: 유틸리티 기반 CSS 프레임워크
-- **Cloudflare R2**: Notion 이미지 저장소 (`scripts/sync-images-to-r2.js`를 GitHub Actions가 dev 푸시·15분마다 실행)
-
-## 특징
-
-- **반응형 디자인**: 모바일, 태블릿, 데스크톱 모든 기기에서 최적화된 경험
-- **이미지**: Notion 이미지를 WebP로 변환해 R2에서 제공 (동기화 전 이미지는 Notion 원본으로 임시 표시)
-- **영상·PDF**: 저장소에 두지 않고 R2의 `videos/`, `pdf/` 에서 제공 (동기화 스크립트가 `public/assets/videos`, `public/assets/pdf` 에 있는 파일을 올림)
-- **SSR**: 요청마다 Notion을 조회해 즉시 반영. ARTWORK DB는 `Post` 체크된 작품만 노출
-- **애니메이션**: 부드러운 페이지 전환 및 인터랙티브 요소
-
-## 페이지 구조
-
-- `/` - 홈
-- `/work` - 작품 및 전시 목록
-- `/work/[slug]` - 작품 상세 페이지
-- `/exhibition/[slug]` - 전시 상세 페이지
-- `/exhibition/[slug]/related/[relatedSlug]` - 전시 관련 자료 페이지
-- `/project/[slug]` - 프로젝트 상세 페이지
-- `/cv` - 이력서
-- `/contact` - 연락처
-- `/studio-edul` - Studio Edul (준비 중)
+제목 Gmarket Sans(OFL, `public/fonts`, 공식 배포처 TTF를 WOFF2로 변환, `public/fonts/OFL.txt`). 본문 Archivo + Noto Sans KR(`next/font`로 빌드 때 받아 함께 배포).
 
 ## 환경 변수
 
-`NOTION_API_KEY`, `NOTION_DB_CV`, `NOTION_DB_WORK`, `NOTION_DB_ARTWORK`, `R2_PUBLIC_URL`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
-(R2 동기화 스크립트는 추가로 `NOTION_DB_RELATED`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`)
+`NOTION_API_KEY`, `NOTION_DB_CV`, `NOTION_DB_WORK`, `NOTION_DB_ARTWORK`, `R2_PUBLIC_URL`
+(동기화 스크립트는 추가로 `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`. RELATED DB는 WORKS의 `Related` 관계에서 찾으므로 `NOTION_DB_RELATED`는 없어도 됩니다.)
