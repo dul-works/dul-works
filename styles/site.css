@@ -118,9 +118,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .home-top { margin-top: var(--sp-block); display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; }
 .home-top.solo { grid-template-columns: 1fr; }
 .slogan { display: flex; flex-direction: column; gap: 14px; max-width: 600px; }
-.now-row { display: grid; grid-template-columns: 150px 1fr; column-gap: 22px; padding: 16px 0; border-top: 1px solid var(--line); text-decoration: none; }
+.now-row { display: grid; grid-template-columns: 150px 1fr; column-gap: 22px; padding: 12px 0 0; text-decoration: none; }
+.now-row + .now-row { margin-top: 24px; }
 .now-row .poster { width: 150px; }
-.now-row .info { display: flex; flex-direction: column; gap: 2px; font-size: 16px; }
+.now-row .now-info { display: flex; flex-direction: column; gap: 2px; font-size: 16px; }
+/* 제목(영문, 국문은 다음 줄) 아래에 선, 그 아래 장소·기간. 제목 위에는 선 없음 */
+.now-row .now-title { padding-bottom: 12px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
 /* about: 라벨 | 영문 | 국문 3단. 열·간격은 작품 페이지 본문(.par)과 같음: 300 | 1fr | 1fr, gap 48. 글자 크기는 W1 병기 본문 */
 .about { margin-top: var(--sp-section); display: grid; grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr); column-gap: 48px; row-gap: var(--sp-pair); padding-top: var(--sp-rule); }
 .about .section-label { grid-column: 1; grid-row: 1; }
@@ -285,7 +288,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cv-sec + .cv-sec { margin-top: var(--sp-group); }
 .cv-sec h2 { font-family: var(--title); font-weight: 500; font-size: 29px; line-height: 1.2; letter-spacing: -0.02em; }
 .cv-rows { list-style: none; padding: 0; }
-.cv-row { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 0.9fr); gap: 0 24px; padding: 18px 0; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.35; }
+.cv-row { display: grid; grid-template-columns: 184px minmax(0, 1fr) minmax(0, 0.9fr); gap: 0 24px; padding: 18px 0; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.35; }
 .cv-row .yr { color: var(--gray); }
 .cv-row .sub { display: block; margin-top: 6px; font-size: 15px; color: var(--kr); }
 .cv-row .cv-kr { font-family: var(--kr-sans); font-size: 15px; color: var(--kr); }
@@ -294,8 +297,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* 위쪽 이름·출생·statement 행: 이력과 같은 열, 첫 줄 선 없음 */
 .cv-sec.cv-intro { margin-top: var(--sp-top); }
 .cv-intro .cv-row:first-child { border-top: 0; padding-top: 0; }
-.cv-intro .cv-name { align-items: baseline; }
-.cv-intro .cv-name .cv-en, .cv-intro .cv-name .cv-kr { font-family: var(--title); font-weight: 300; font-size: 36px; line-height: 1.3; letter-spacing: 0; color: var(--ink); } /* 영문 이름 = 국문 이름 크기 */
 .cv-intro .cv-stmt { line-height: 1.7; border-top: 0; padding: 0 0 14px; }
 .cv-intro .cv-stmt .cv-kr { line-height: 1.85; color: var(--kr-body); }
 
@@ -408,8 +409,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .cv-row { grid-template-columns: 1fr; gap: 4px; }
   .cv-row .cv-kr:empty { display: none; }
   .cv-intro > span:first-child { display: none; }
-  .cv-intro .cv-name .cv-en, .cv-intro .cv-name .cv-kr { font-size: 23px; font-weight: 500; }
-  .contact { grid-template-columns: 1fr; gap: var(--sp-block); }
+    .contact { grid-template-columns: 1fr; gap: var(--sp-block); }
   .contact .big-logo { width: 80px; }
   .contact h1 { font-size: 40px; }
   .contact dl > div { grid-template-columns: 1fr; gap: 4px; }

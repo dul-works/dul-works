@@ -77,9 +77,9 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
                   {list.map((e) => (
                     <Link key={e.slug} href={`/exhibitions/${e.slug}`} className="now-row card">
                       <Cover src={e.cover} className="poster" alt={`${e.name} poster`} />
-                      <div className="info">
-                        <TitlePair name={e.name} nameKr={e.nameKr} as="h3" />
-                        {e.venue && <span style={{ marginTop: 8 }}>{e.venue}</span>}
+                      <div className="now-info">
+                        <div className="now-title"><TitlePair name={e.name} nameKr={e.nameKr} as="h3" /></div>
+                        {e.venue && <span>{e.venue}</span>}
                         {e.venueKr && <span className="kr" lang="ko" style={{ fontSize: 15 }}>{e.venueKr}</span>}
                         <span className="gray" style={{ fontSize: 14, marginTop: 4 }}>{e.periodLabel}</span>
                       </div>

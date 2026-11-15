@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync-images-to-r2": "node scripts/sync-images-to-r2.js"
+    "sync-images-to-r2": "node scripts/sync-images-to-r2.js",
+    "check:period": "node --no-warnings lib/period.check.mjs"
   },
   "keywords": [],
   "author": "",
