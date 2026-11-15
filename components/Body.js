@@ -252,6 +252,15 @@ function Block({ n, ctx, mode }) {
     case 'embed':
     case 'audio':
       return <Media n={n} ctx={ctx} />;
+    case 'imgcols':
+      // 노션 이미지 열 블록 그대로: 열 너비는 노션 비율, 열 안은 위→아래. 모바일은 한 열(열 순서대로)
+      return (
+        <div className="imgcols" style={{ '--cols': n.cols.map((_, i) => `minmax(0, ${n.ratios?.[i] || 1}fr)`).join(' ') }}>
+          {n.cols.map((c, i) => (
+            <div key={i} className="imgcol">{c.map((m, j) => <Media key={j} n={m} ctx={ctx} />)}</div>
+          ))}
+        </div>
+      );
     case 'gallery':
       return n.items.length === 1 ? <Media n={n.items[0]} ctx={ctx} /> : <Gallery items={n.items} ctx={ctx} />;
     case 'table':
@@ -273,7 +282,7 @@ function Block({ n, ctx, mode }) {
   }
 }
 
-const isWide = (n) => ['image', 'video', 'embed', 'gallery', 'columns', 'table', 'code'].includes(n.t);
+const isWide = (n) => ['image', 'video', 'embed', 'gallery', 'imgcols', 'columns', 'table', 'code'].includes(n.t);
 
 /** parallel 모드의 한 줄: 영문 칸 | 국문 칸 */
 function ParRow({ n, ctx, solo }) {

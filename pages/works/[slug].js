@@ -59,7 +59,7 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
               <h2 className="section-label">also in project ‘{project.name}’</h2>
               <Link href={`/projects/${project.slug}`} className="tlink" style={{ minHeight: 'auto' }}>view project</Link>
             </div>
-            <Masonry cols={4}>{also.map((a) => <WorkCard key={a.slug} work={a} />)}</Masonry>
+            <Masonry cols={4} rowwise>{also.map((a) => <WorkCard key={a.slug} work={a} />)}</Masonry>
           </section>
         )}
         <nav className="prevnext" aria-label="previous and next work">

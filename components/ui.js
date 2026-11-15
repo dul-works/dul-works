@@ -236,11 +236,11 @@ export function RelationLists({ exhibited, texts }) {
  * DOM·읽는 순서는 그대로(왼→오, 위→아래). 각 칸의 실제 높이를 재서 grid 행 span을 정하고,
  * grid가 순서대로 다음 빈 자리에 놓음. JS 전에는 같은 grid가 위쪽 정렬로 보임.
  */
-export function Masonry({ cols = 2, children, className = '' }) {
+export function Masonry({ cols = 2, rowwise = false, children, className = '' }) {
   const ref = useRef(null);
   useEffect(() => {
     const ul = ref.current;
-    if (!ul) return;
+    if (!ul || rowwise) return; // rowwise: 줄 단위 격자(아래 칸이 위 카드 높이에 밀리지 않고 항상 줄 맨 왼쪽부터)
     const fit = () => {
       const unit = parseFloat(getComputedStyle(ul).gridAutoRows) || 4;
       for (const li of ul.children) {
@@ -253,9 +253,9 @@ export function Masonry({ cols = 2, children, className = '' }) {
     const ro = new ResizeObserver(fit);
     for (const li of ul.children) if (li.firstElementChild) ro.observe(li.firstElementChild);
     return () => ro.disconnect();
-  }, [children]);
+  }, [children, rowwise]);
   return (
-    <ul ref={ref} className={`masonry c${cols} ${className}`}>
+    <ul ref={ref} className={`masonry c${cols} ${rowwise ? 'rowwise' : ''} ${className}`}>
       {Children.toArray(children).map((c, i) => <li key={i}><div>{c}</div></li>)}
     </ul>
   );

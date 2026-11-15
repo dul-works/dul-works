@@ -70,7 +70,7 @@ export default function Exhibition({ e, poster, text, media, works, texts }) {
         {works.length > 0 && (
           <section className="also rule">
             <div className="head"><h2 className="section-label">works shown</h2></div>
-            <Masonry cols={3}>{works.map((w) => <WorkCard key={w.slug} work={w} />)}</Masonry>
+            <Masonry cols={3} rowwise>{works.map((w) => <WorkCard key={w.slug} work={w} />)}</Masonry>
           </section>
         )}
         <RelationLists exhibited={[]} texts={texts} />

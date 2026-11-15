@@ -198,6 +198,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .b-cols { display: grid; gap: 24px; }
 .b-cols > div { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .masonry.gallery { column-gap: 16px; }
+/* 줄 단위 격자: 다음 줄은 항상 맨 왼쪽부터, 같은 줄 카드는 위쪽 정렬(높이는 카드마다) */
+.masonry.rowwise { grid-auto-rows: auto; }
+/* 노션 이미지 열 블록 */
+.imgcols { display: grid; grid-template-columns: var(--cols); gap: 16px; align-items: start; margin: 0; }
+.imgcol { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .masonry.gallery > li > div { padding-bottom: var(--sp-para); }
 .masonry.gallery { margin-bottom: calc(-1 * var(--sp-para)); }
 .embed { aspect-ratio: 16 / 9; width: 100%; border: 0; }
@@ -234,7 +239,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .col .pair .kr { font-size: 17px; line-height: 1.75; color: var(--kr); }
 .col .b-sub { margin-top: 8px; }
 .col .b-item { margin-top: 4px; }
-.col .fig, .col .gallery, .col .b-cols { margin: calc(var(--sp-block) - var(--sp-para)) 0; } /* 문단 간격 + 이만큼 = 블록 간격 */
+.col .fig, .col .gallery, .col .imgcols, .col .b-cols { margin: calc(var(--sp-block) - var(--sp-para)) 0; } /* 문단 간격 + 이만큼 = 블록 간격 */
 
 /* parallel 모드 (작품·글): 레일 300 | EN | KR */
 .par { margin-top: var(--sp-section); }
@@ -353,6 +358,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .sel-wide .t-card { font-size: 18px; }
   .sel-alt { grid-template-columns: 1fr; gap: var(--sp-block); }
   .masonry.c2, .masonry.c3 { grid-template-columns: 1fr; }
+  .imgcols { grid-template-columns: 1fr; }
   .masonry.c4 { grid-template-columns: 1fr 1fr; column-gap: 12px; }
   .card .meta { margin-top: 8px; }
   .title-row { flex-direction: column; gap: 0; }
