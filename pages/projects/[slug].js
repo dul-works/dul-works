@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Layout, WorkCard, Masonry } from '../../components/ui';
 import Body, { FileButton } from '../../components/Body';
-import { getSite, getPageBody, byNewest, card, exhibitedRow, textRow, REVALIDATE } from '../../lib/data';
+import { getSite, getPageBody, byNewest, card, exhibitedRow, textRow, periodCmp, REVALIDATE } from '../../lib/data';
 
 const pad2 = (n) => String(n).padStart(2, '0');
 
@@ -96,7 +96,7 @@ export async function getStaticProps({ params }) {
   }
   const works = site.artworks.filter((a) => a.projectId === p.id).sort(byNewest);
   const workIds = new Set(works.map((w) => w.id));
-  const exhibitions = [...site.exhibitions, ...site.hiddenExhibitions].filter((e) => works.some((w) => w.exhibitionIds.includes(e.id)));
+  const exhibitions = [...site.exhibitions, ...site.hiddenExhibitions].filter((e) => works.some((w) => w.exhibitionIds.includes(e.id))).sort(periodCmp);
   const exIds = new Set(exhibitions.map((e) => e.id));
   // 프로젝트·작품·작품이 나온 전시에 연결된 글
   const texts = site.texts.filter((t) => t.workIds.includes(p.id) || t.workIds.some((id) => exIds.has(id)) || t.artworkIds.some((id) => workIds.has(id)));

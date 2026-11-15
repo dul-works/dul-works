@@ -30,9 +30,9 @@ function Section({ title, rows }) {
   );
 }
 
-export default function CV({ statement, sections }) {
+export default function CV({ statement, sections, description }) {
   return (
-    <Layout title="cv" description="dul (Lee Jiwon), new media artist based in Seoul. Exhibitions, education, awards and residencies.">
+    <Layout title="cv" description={description}>
       <div className="wrap">
         {/* 위쪽도 이력과 같은 3단: 라벨 | 영문 | 국문 (열 위치 x가 아래 이력 행과 같음) */}
         <section className="cv-sec cv-intro" aria-label="about">
@@ -42,11 +42,6 @@ export default function CV({ statement, sections }) {
               <span className="yr">name</span>
               <h1 className="cv-en t-page">dul</h1>
               <span className="cv-kr t-page-kr" lang="ko">둘</span>
-            </li>
-            <li className="cv-row">
-              <span className="yr">born</span>
-              <span className="cv-en">b. 2000, Seoul. Lives and works in Seoul.</span>
-              <span className="cv-kr" lang="ko">2000년 서울 출생. 서울에서 활동.</span>
             </li>
             {statement.map((p, i) => (
               <li key={i} className="cv-row cv-stmt" id={i === 0 ? 'statement' : undefined}>
@@ -71,13 +66,15 @@ export async function getStaticProps() {
     key: e.slug, year: e.year, en: e.name, enSub: e.venue, ko: kr(e.nameKr, e.name), koSub: e.venueKr, href: `/exhibitions/${e.slug}`,
   }));
   const sections = [
-    { title: 'education', rows: cv.education.map((r) => ({ key: r.id, year: yearSpan(r.year, r.endYear), en: r.place || r.name, enSub: [r.name, r.client].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name) })) },
+    { title: 'education', rows: cv.education.map((r) => ({ key: r.id, year: yearSpan(r.year, r.endYear), en: r.place || r.name, enSub: [r.name, r.client].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name), koSub: r.placeKr })) },
     { title: 'solo exhibitions', rows: ex('solo') },
     { title: 'group exhibitions', rows: ex('group') },
-    { title: 'grants and awards', rows: cv.awards.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.place?.trim()].filter(Boolean).join(', '), enSub: r.client, ko: kr(r.nameKr, r.name) })) },
-    { title: 'artist in residency', rows: cv.residency.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: r.place, ko: kr(r.nameKr, r.name) })) },
-    { title: 'etc', rows: cv.participated.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: [r.role, r.place].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name) })) },
+    { title: 'grants and awards', rows: cv.awards.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.place?.trim()].filter(Boolean).join(', '), enSub: r.client, ko: [kr(r.nameKr, r.name), r.placeKr].filter(Boolean).join(', ') || null })) },
+    { title: 'artist in residency', rows: cv.residency.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: r.place, ko: kr(r.nameKr, r.name), koSub: r.placeKr })) },
+    { title: 'etc', rows: cv.participated.map((r) => ({ key: r.id, year: r.year, en: [r.name, r.client].filter(Boolean).join(', '), enSub: [r.role, r.place].filter(Boolean).join(', '), ko: kr(r.nameKr, r.name), koSub: r.placeKr })) },
   ];
   const statement = (site.statement?.sections || []).flatMap((s) => s.items).filter((n) => n.t === 'p').map((n) => ({ en: n.en, ko: n.ko }));
-  return { props: { statement, sections }, revalidate: REVALIDATE };
+  // 검색·공유용 설명 = 노션 Artist Statement 첫 문단 영문 (직접 쓴 문구 없음)
+  const description = statement[0]?.en ? statement[0].en.map((r) => r.x).join('').slice(0, 200) : null;
+  return { props: { statement, sections, description }, revalidate: REVALIDATE };
 }
