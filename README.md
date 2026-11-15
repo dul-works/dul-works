@@ -7,7 +7,7 @@
 
 | 주소 | 내용 | 노션 |
 |---|---|---|
-| `/` | 대표 사진, 문장, now on view · upcoming, about, selected works | ARTWORK `Selected`·`Order`, WORKS 전시 `Period`(진행 중 + 90일 이내 예정), Artist Statement |
+| `/` | 대표 사진, 문장, now on view · upcoming, about, selected works | ARTWORK `Selected`·`Order`, WORKS 전시 `Current` 체크(시작일이 오늘 뒤면 upcoming, 나머지 now on view), Artist Statement |
 | `/works` | group by project / exhibition / year, sort newest / oldest | ARTWORK, WORKS |
 | `/works/[slug]` | 작품 상세 (EN \| KR 두 열 본문 + 갤러리) | ARTWORK (`Slug`) |
 | `/exhibitions/[slug]` | 전시 상세 (포스터, 기간·장소·종류, 본문 EN \| KR, 출품작, 관련 글) | WORKS `Class = SOLO/GROUP EXHIBITION`, 페이지 커버 = 포스터 |
