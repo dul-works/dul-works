@@ -116,7 +116,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             </div>
             {wide && (
               <div className="sel-wide">
-                <WorkCard work={wide} />
+                <WorkCard work={wide} showDesc />
               </div>
             )}
             {alts.map((w, i) => (
@@ -134,7 +134,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             ))}
             {pairs.length > 0 && (
               <Masonry cols={2} className="sel-pair">
-                {pairs.map((w) => <WorkCard key={w.slug} work={w} />)}
+                {pairs.map((w) => <WorkCard key={w.slug} work={w} showDesc />)}
               </Masonry>
             )}
             <div className="all-works">
