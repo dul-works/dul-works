@@ -186,7 +186,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- 작품 상세 (Dul-P3) ---------- */
 .work-top { margin-top: var(--sp-top); display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: var(--gap-col-lg); align-items: start; }
-.work-top h1 { margin-top: calc(var(--sp-label) - 22px); } /* 경로 링크(높이 44)의 아래 여유를 빼서 보이는 간격 = --sp-label (실측) */
+.work-top h1 { margin-top: calc(var(--sp-label) - 22.5px); } /* 경로 링크(높이 44)의 아래 여유를 빼서 보이는 간격 = --sp-label (실측) */
 .info { border-top: 1px solid var(--line); margin-top: 24px; }
 .info > div { display: grid; grid-template-columns: 146px 1fr; gap: 0 0; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .info dt { font-size: 14px; color: var(--gray); padding-top: 2px; }
@@ -400,6 +400,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .about-kr { font-size: 16px; line-height: 1.8; }
   .hero-meta .t-card, .sel-wide .t-card, .sel-alt .t-card, .sel-pair .t-card { font-size: 18px; }
   .tlink { font-size: 15px; }
+  .group-head h2 { margin-top: calc(var(--sp-label) - 7.5px); } /* Chrome·Chromium 두 엔진 평균 (라벨 Archivo 줄 박스가 엔진마다 최대 1px 다름) */
   .selected-head .section-label { font-size: 18px; }
   .sel-alt { grid-template-columns: 1fr; gap: var(--sp-cap); }
   .masonry.c2, .masonry.c3 { grid-template-columns: 1fr; }
@@ -483,7 +484,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* 전시 상세: [경로·제목·본문 글] | [정보 칸·포스터 460] */
 .ex-top { margin-top: var(--sp-top); display: grid; grid-template-columns: minmax(0, 1fr) 460px; grid-template-areas: 'head side' 'body side'; grid-template-rows: auto 1fr; column-gap: var(--gap-col-lg); align-items: start; }
 .ex-head { grid-area: head; }
-.ex-head h1 { margin-top: calc(var(--sp-label) - 22px); }
+.ex-head h1 { margin-top: calc(var(--sp-label) - 21.5px); }
 .ex-side { grid-area: side; }
 .ex-poster { margin-top: var(--sp-block); }
 .ex-body { grid-area: body; margin-top: var(--sp-block); display: flex; flex-direction: column; gap: var(--sp-para); }
@@ -498,7 +499,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .ex-side { margin-top: var(--sp-block); max-width: 460px; }
 }
 @media (max-width: 767px) {
-  .ex-head h1 { margin-top: calc(var(--sp-label) - 18.4px); } /* 데스크톱 .ex-head h1 규칙이 위에 있으므로 이 블록에 둠 */
+  .ex-head h1 { margin-top: calc(var(--sp-label) - 17.9px); } /* 데스크톱 .ex-head h1 규칙이 위에 있으므로 이 블록에 둠 */
   .ex-row { grid-template-columns: 1fr; row-gap: 0; }
   .ex-row .kr { margin-top: calc(var(--sp-pair) - 13.7px); }
   .ex-row .en { font-size: 17px; line-height: 1.65; }
