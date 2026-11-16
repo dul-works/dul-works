@@ -148,8 +148,8 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
 
 export async function getStaticProps() {
   const site = await getSite();
-  // Selected 체크한 작품만 Order 순으로 (첫 번째가 대표 사진). 체크가 없으면 대표 사진·selected works 칸 모두 숨김
-  const picks = site.artworks.filter((a) => a.selected).sort((a, b) => a.order - b.order);
+  // Selected 체크한 작품만 Home Order 순으로 (비면 Order) (첫 번째가 대표 사진). 체크가 없으면 대표 사진·selected works 칸 모두 숨김
+  const picks = site.artworks.filter((a) => a.selected).sort((a, b) => (a.homeOrder ?? a.order) - (b.homeOrder ?? b.order));
   const [hero, ...selected] = picks.map(card);
   if (hero) Object.assign(hero, await imageShape(hero.cover));
 
