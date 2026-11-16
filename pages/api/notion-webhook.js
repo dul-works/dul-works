@@ -20,7 +20,8 @@ export default async function handler(req, res) {
   try { json = JSON.parse(body); } catch {}
 
   // 구독을 만든 직후 한 번: 토큰만 오는 요청. 사용자가 Vercel 로그에서 복사해 노션에 붙여 넣음
-  if (json && json.verification_token && !req.headers['x-notion-signature']) {
+  // 노션은 이 요청에도 서명 헤더를 붙여 보냄(토큰 등록 전이라 검증 불가) → 헤더 유무와 상관없이 토큰 본문이면 받음
+  if (json && json.verification_token && !json.type) {
     console.log('notion verification_token:', json.verification_token);
     return res.status(200).json({ ok: true });
   }
