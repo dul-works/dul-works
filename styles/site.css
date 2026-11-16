@@ -144,7 +144,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hero { width: 100%; } /* 컨테이너 폭 안, 원본 비율 그대로 */
 .hero .cover-img { width: auto; max-width: 100%; max-height: 72vh; } /* 화면보다 길어지지 않게 (자르지 않고 폭이 줄어듦) */
 .hero-meta { margin-top: var(--sp-cap); }
-.home-top { margin-top: var(--sp-section); display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; }
+.home-top { margin-top: calc(var(--sp-section) - 4.6px); display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; }
 .home-top.solo { grid-template-columns: 1fr; }
 .slogan { display: flex; flex-direction: column; gap: 0; max-width: 600px; }
 .slogan .t-stmt-kr { margin-top: calc(var(--sp-pair) - 12.2px); } /* 슬로건 마지막 줄 'to erase.' 는 내림 글자가 없음 */
@@ -391,7 +391,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .t-card-kr { font-size: 14px; line-height: 1.45; }
   .t-stmt { font-size: 23px; line-height: 1.15; font-weight: 500; }
   .t-stmt-kr { font-size: 18px; line-height: 1.5; font-weight: 500; }
-  .home-top { gap: var(--sp-group); }
+  .home-top { gap: var(--sp-group); margin-top: calc(var(--sp-section) - 1.7px); }
   .now-row { grid-template-columns: 96px 1fr; column-gap: 16px; }
   .now-row .poster { width: 96px; }
   .about { grid-template-columns: 1fr; row-gap: 0; }
