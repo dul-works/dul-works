@@ -55,7 +55,7 @@ const norm = (t) => (t || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 export async function getStaticProps() {
   const site = await getSite();
   const { cv } = site;
-  const kr = (ko, en) => (ko && ko !== en ? ko : null);
+  const kr = (ko) => ko || null; // 영문과 같아도 값이 있으면 그대로 표시
   const pageFor = (r) => site.exhibitions.find((e) => norm(e.name) === norm(r.name) || (r.nameKr && norm(e.nameKr) === norm(r.nameKr)) || (r.start && e.start === r.start));
   const ex = (rows) => rows.map((r) => {
     const e = pageFor(r);
