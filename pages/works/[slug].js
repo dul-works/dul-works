@@ -41,7 +41,7 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
             </nav>
             <h1>
               <span className="t-page" style={{ display: 'block' }}>{w.name}</span>
-              {w.nameKr && <span className="t-page-kr" lang="ko" style={{ marginTop: 8 }}>{w.nameKr}</span>}
+              {w.nameKr && <span className="t-page-kr" lang="ko">{w.nameKr}</span>}
             </h1>
           </div>
           <div className="info-wrap"><Info w={w} credits={credits} /></div>

@@ -18,7 +18,7 @@ function GroupHead({ label, name, nameKr, sub, subKr, desc, descKr, href, link, 
         <span className="label">{label}</span>
         <h2>
           {(link || href) ? <Link href={link || href} className={big} style={{ display: 'block', textDecoration: 'none' }}>{name}</Link> : <span className={big} style={{ display: 'block' }}>{name}</span>}
-          {nameKr && nameKr !== name && <span className="t-proj-kr" lang="ko" style={{ display: 'block', marginTop: 4 }}>{nameKr}</span>}
+          {nameKr && nameKr !== name && <span className="t-proj-kr" lang="ko" style={{ display: 'block' }}>{nameKr}</span>}
         </h2>
         {sub && <p className="sub">{sub}{subKr && <span className="kr" lang="ko" style={{ display: 'block', fontSize: 15 }}>{subKr}</span>}</p>}
         {href && <p className="vp"><Link href={href} className="tlink">view project</Link></p>}

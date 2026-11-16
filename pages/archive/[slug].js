@@ -24,9 +24,9 @@ export default function Read({ t, items, lang, about }) {
           {label && <p className="gray" style={{ fontSize: 15 }}>{label}</p>}
           <h1>
             <span className="t-page" style={{ display: 'block', fontSize: 'clamp(33px, 4.8vw, 69px)' }}>{t.name}</span>
-            {t.nameKr && <span className="t-page-kr" lang="ko" style={{ marginTop: 8 }}>{t.nameKr}</span>}
+            {t.nameKr && <span className="t-page-kr" lang="ko">{t.nameKr}</span>}
           </h1>
-          {t.author && <p style={{ marginTop: 18, fontSize: 17 }}>by {t.author}</p>}
+          {t.author && <p style={{ marginTop: 'var(--sp-label)', fontSize: 17 }}>by {t.author}</p>}
           {both && (
             <div className="tabs read-switch" role="group" aria-label="language">
               {[['both', 'both'], ['en', 'EN'], ['ko', 'KR']].map(([k, l]) => <button key={k} type="button" aria-pressed={show === k} onClick={() => setShow(k)}>{l}</button>)}
