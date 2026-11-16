@@ -79,12 +79,14 @@ function Caption({ cap, prefix }) {
   );
 }
 
-function Media({ n, ctx }) {
+function Media({ n, ctx, onZoom }) {
   const fig = ctx.numbered && (n.t === 'image' || n.t === 'video' || n.t === 'embed') ? ++ctx.fig : null;
   const prefix = fig ? { en: `fig. ${fig}, `, ko: '' } : null; // 사이트가 붙이는 글자는 영문만
   const alt = n.cap?.en || `${ctx.title}, image ${++ctx.img}`;
   let el = null;
-  if (n.t === 'image') el = <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} />;
+  if (n.t === 'image') el = onZoom
+    ? <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} className="zoomable" role="button" tabIndex={0} aria-label={`${alt}, enlarge`} onClick={onZoom} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onZoom())} />
+    : <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} />;
   if (n.t === 'video') el = <Video src={n.src} label={alt} />;
   if (n.t === 'embed') el = <iframe className="embed" src={n.src} title={n.cap?.en || `${ctx.title}, video`} loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (n.t === 'audio') return <AudioPill src={n.src} cap={n.cap} />;
@@ -98,10 +100,53 @@ function Media({ n, ctx }) {
 
 // 사진 묶음: 2장 → 2열, 3장 이상 → 3열. 원본 비율, 간격 일정 (P7)
 function Gallery({ items, ctx }) {
+  const [open, setOpen] = useState(-1);
+  const imgs = items.filter((m) => m.t === 'image');
+  const zoom = (m) => (m.t === 'image' ? () => setOpen(imgs.indexOf(m)) : undefined);
+  const media = items.map((m, i) => <Media key={i} n={m} ctx={ctx} onZoom={zoom(m)} />);
   return (
-    <Masonry cols={Math.min(items.length, 3)} className="gallery">
-      {items.map((m, i) => <Media key={i} n={m} ctx={ctx} />)}
-    </Masonry>
+    <>
+      {items.length === 1 ? media : <Masonry cols={Math.min(items.length, 3)} className="gallery">{media}</Masonry>}
+      {open >= 0 && <Lightbox imgs={imgs} i={open} setI={setOpen} />}
+    </>
+  );
+}
+
+// 확대 보기: Esc·배경 클릭으로 닫기, ←/→ 키·화살표 단추·(모바일) 좌우 쓸기로 넘기기
+function Lightbox({ imgs, i, setI }) {
+  const n = imgs.length;
+  const go = (d) => setI((i + d + n) % n);
+  const close = () => setI(-1);
+  const box = useRef(null);
+  const x0 = useRef(null);
+  useEffect(() => {
+    const key = (e) => {
+      if (e.key === 'Escape') close();
+      else if (n > 1 && e.key === 'ArrowLeft') go(-1);
+      else if (n > 1 && e.key === 'ArrowRight') go(1);
+    };
+    document.addEventListener('keydown', key);
+    const prev = document.body.style.overflow;
+    const opener = document.activeElement;
+    document.body.style.overflow = 'hidden';
+    box.current?.querySelector('.lb-x')?.focus();
+    return () => {
+      document.removeEventListener('keydown', key);
+      document.body.style.overflow = prev;
+      opener?.focus?.();
+    };
+  });
+  const m = imgs[i];
+  return (
+    <div ref={box} className="lb" role="dialog" aria-modal="true" aria-label="enlarged image" onClick={close}
+      onTouchStart={(e) => { x0.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => { const d = e.changedTouches[0].clientX - x0.current; if (n > 1 && Math.abs(d) > 50) go(d < 0 ? 1 : -1); }}>
+      <img src={m.src} alt={m.cap?.en || ''} onClick={(e) => e.stopPropagation()} />
+      <button type="button" className="lb-x" onClick={close} aria-label="close">close</button>
+      {n > 1 && <button type="button" className="lb-p" onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label="previous image">←</button>}
+      {n > 1 && <button type="button" className="lb-n" onClick={(e) => { e.stopPropagation(); go(1); }} aria-label="next image">→</button>}
+      {n > 1 && <span className="lb-c">{i + 1} / {n}</span>}
+    </div>
   );
 }
 
@@ -262,7 +307,7 @@ function Block({ n, ctx, mode }) {
         </div>
       );
     case 'gallery':
-      return n.items.length === 1 ? <Media n={n.items[0]} ctx={ctx} /> : <Gallery items={n.items} ctx={ctx} />;
+      return <Gallery items={n.items} ctx={ctx} />;
     case 'table':
       return <Table rows={n.rows} />;
     case 'bookmark':

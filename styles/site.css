@@ -54,9 +54,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .t-page { font-family: var(--title); font-weight: 300; font-size: 69px; line-height: 1; letter-spacing: -0.02em; text-wrap: balance; }
 .t-page-kr { font-family: var(--title); font-weight: 300; font-size: 36px; line-height: 1.3; display: block; }
 .t-proj { font-family: var(--title); font-weight: 300; font-size: 36px; line-height: 1; letter-spacing: -0.02em; }
-.t-proj-kr { font-family: var(--title); font-weight: 500; font-size: 23px; line-height: 1.35; }
-.t-card { font-family: var(--title); font-weight: 500; font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
-.t-card-kr { font-family: var(--title); font-weight: 500; font-size: 18px; line-height: 1.4; }
+.t-proj-kr { font-family: var(--title); font-weight: 300; font-size: 23px; line-height: 1.35; }
+.t-card { font-family: var(--title); font-weight: 300; font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.t-card-kr { font-family: var(--title); font-weight: 300; font-size: 18px; line-height: 1.4; }
 .t-head { font-family: var(--title); font-weight: 500; font-size: 25px; line-height: 1.2; letter-spacing: -0.02em; }
 .t-head-kr { font-family: var(--title); font-weight: 500; font-size: 18px; line-height: 1.4; color: var(--kr); }
 .t-stmt { font-family: var(--title); font-weight: 300; font-size: 36px; line-height: 1.12; letter-spacing: -0.02em; }
@@ -95,6 +95,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .card { display: block; text-decoration: none; color: var(--ink); }
 .card:hover { color: var(--ink); }
 .card:hover .t-card { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.sel-img:hover + div .t-card { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; } /* 이미지 링크와 제목 링크가 따로인 홈 카드 */
+.group-head a.t-proj:hover { text-decoration: underline !important; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+.zoomable { cursor: zoom-in; }
+.lb { position: fixed; inset: 0; z-index: 100; background: rgba(255,255,255,.96); display: flex; align-items: center; justify-content: center; padding: 56px 64px; }
+.lb img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.lb button { position: absolute; background: none; border: 0; font: inherit; font-size: 15px; color: var(--ink); cursor: pointer; min-width: 44px; min-height: 44px; }
+.lb .lb-x { top: 8px; right: 16px; }
+.lb .lb-p { left: 8px; top: 50%; transform: translateY(-50%); font-size: 22px; }
+.lb .lb-n { right: 8px; top: 50%; transform: translateY(-50%); font-size: 22px; }
+.lb .lb-c { bottom: 12px; left: 50%; transform: translateX(-50%); pointer-events: none; color: var(--gray); font-size: 13px; }
+@media (max-width: 767px) { .lb { padding: 56px 8px; } }
 .card .meta { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
 .card-desc { margin-top: 10px; font-size: 15px; line-height: 1.6; }
 .card-desc .kr { display: block; margin-top: 6px; font-size: 14px; line-height: 1.75; }
@@ -133,7 +144,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .about-link { grid-column: 2; grid-row: 2; } /* 'about dul' 위치는 글 왼쪽 아래 그대로 */
 .selected-head { margin-top: var(--sp-section); padding-top: 18px; display: flex; align-items: baseline; justify-content: space-between; }
 .sel-wide { margin-top: var(--sp-block); }
-.sel-wide .t-card { font-size: 26px; }
+.hero-meta .t-card, .sel-wide .t-card, .sel-alt .t-card, .sel-pair .t-card { font-size: 26px; } /* 홈의 작품 제목 영문은 모두 같은 크기 */
 .selected-head .section-label { font-size: 26px; line-height: 1.15; } /* 대표작 제목과 같은 크기 */
 .sel-alt { margin-top: var(--sp-section); display: grid; grid-template-columns: 880px 1fr; gap: 48px; align-items: end; }
 .sel-alt.flip { grid-template-columns: 1fr 880px; }
@@ -150,7 +161,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .group-head { display: grid; grid-template-columns: 300px 1fr 1fr; gap: 48px; margin-bottom: var(--sp-block); }
 .group-head .desc { font-size: 19px; line-height: 1.7; }
 /* 영문·국문 프로젝트명은 같은 서체(Gmarket Sans)라 굵기도 500으로 통일. 설명은 프로젝트 영문명 높이에서 시작 (라벨 줄 21 + 간격 4 + 위 여백 3 = 28) */
-.group-head .t-proj { font-weight: 500; }
 .group-head .desc, .group-head .desc-kr { margin-top: 28px; }
 .group-head .desc-kr { font-family: var(--kr-sans); font-size: 17px; line-height: 1.9; color: var(--kr-body); }
 .group-head .sub { margin-top: 8px; font-size: 16px; }
@@ -263,7 +273,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- 프로젝트 (Site-04) ---------- */
 .proj-top { margin-top: var(--sp-top); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .proj-top h1 { font-family: var(--title); font-weight: 300; font-size: 49px; line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
-.proj-top .t-kr { font-family: var(--title); font-weight: 500; font-size: 25px; line-height: 1.3; }
+.proj-top .t-kr { font-family: var(--title); font-weight: 300; font-size: 25px; line-height: 1.3; }
 .proj-top .buttons { margin-top: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .proj-cover { margin-top: var(--sp-section); }
 
@@ -350,7 +360,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .studio-link { display: none; }
   .bleed { margin-left: calc(var(--pad) * -1); margin-right: calc(var(--pad) * -1); }
   .t-page { font-size: 33px; line-height: 1.05; }
-  .t-page-kr { font-family: var(--title); font-weight: 500; font-size: 23px; line-height: 1.35; }
+  .t-page-kr { font-family: var(--title); font-weight: 300; font-size: 23px; line-height: 1.35; }
   .t-proj { font-size: 26px; line-height: 1.05; }
   .t-card { font-size: 16px; line-height: 1.2; }
   .t-card-kr { font-size: 14px; line-height: 1.45; }
@@ -363,7 +373,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .about .section-label, .about-en, .about-kr, .about-link { grid-column: 1; grid-row: auto; }
   .about-en { font-size: 17px; line-height: 1.65; }
   .about-kr { font-size: 16px; line-height: 1.8; }
-  .sel-wide .t-card { font-size: 18px; }
+  .hero-meta .t-card, .sel-wide .t-card, .sel-alt .t-card, .sel-pair .t-card { font-size: 18px; }
   .selected-head .section-label { font-size: 18px; }
   .sel-alt { grid-template-columns: 1fr; gap: var(--sp-block); }
   .masonry.c2, .masonry.c3 { grid-template-columns: 1fr; }

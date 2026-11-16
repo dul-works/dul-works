@@ -49,6 +49,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             <Cover src={hero.cover} className="hero" alt={hero.name} eager />
             <div className="hero-meta">
               <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
+              <Desc w={hero} />
             </div>
           </Link>
         </div>
@@ -60,6 +61,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             <Cover src={hero.cover} className="hero-img" alt={hero.name} eager />
             <div className="hero-meta">
               <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
+              <Desc w={hero} />
             </div>
           </Link>
           {/* 그리기 전에 폭을 정해 깜빡임 없게: 1/2 폭에서 이미지 높이가 화면 높이를 넘으면 1/3 */}
@@ -111,7 +113,6 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
           <>
             <div className="selected-head rule">
               <h2 className="section-label">selected works</h2>
-              <Link href="/works" className="tlink" style={{ minHeight: 'auto' }}>all works</Link>
             </div>
             {wide && (
               <div className="sel-wide">
