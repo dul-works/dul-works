@@ -28,14 +28,14 @@ export default function Texts({ texts, types }) {
           </div>
         </div>
         {list.length === 0 ? (
-          <p className="empty-line">nothing here yet <Link href="/works" className="tlink" style={{ marginLeft: 12 }}>works</Link></p>
+          <p className="empty-line">nothing here yet <Link href="/works" className="tlink">works</Link></p>
         ) : (
           <ul className="text-list">
             {list.map((t) => {
               const Title = (
                 <>
                   <span className="t-card" style={{ display: 'block' }}>{t.name}{t.external && <span aria-hidden="true"> ↗</span>}</span>
-                  {t.nameKr && <span className="t-card-kr" lang="ko" style={{ display: 'block', marginTop: 4 }}>{t.nameKr}</span>}
+                  {t.nameKr && <span className="t-card-kr" lang="ko" style={{ display: 'block', marginTop: 'calc(var(--sp-pair) - 4px)' }}>{t.nameKr}</span>}
                 </>
               );
               return (

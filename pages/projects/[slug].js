@@ -13,7 +13,7 @@ function RelCol({ no, title, rows }) {
         <span className="no gray" style={{ fontSize: 15 }}>{pad2(no)}</span>
         <span className="t-head">{title}</span>
       </h2>
-      <ul style={{ listStyle: 'none', padding: 0, marginTop: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <ul style={{ listStyle: 'none', padding: 0, marginTop: 'var(--sp-label)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-item)' }}>
         {rows.map((r) => (
           <li key={r.key} style={{ fontSize: 16, lineHeight: 1.45 }}>
             {r.href ? (
@@ -56,7 +56,7 @@ export default function Project({ p, body, buttons, works, exhibited, texts }) {
                 <span className="no gray" style={{ fontSize: 15 }}>{pad2(++no)}</span>
                 <span className="t-head">works</span>
               </h2>
-              <Masonry cols={3} rowwise className="mt24">{works.map((w) => <WorkCard key={w.slug} work={w} />)}</Masonry>
+              <Masonry cols={3} rowwise>{works.map((w) => <WorkCard key={w.slug} work={w} />)}</Masonry>
             </section>
           )}
           {(exhibited.length > 0 || texts.length > 0) && (

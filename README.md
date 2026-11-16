@@ -41,3 +41,9 @@
 
 `NOTION_API_KEY`, `NOTION_DB_CV`, `NOTION_DB_WORK`, `NOTION_DB_ARTWORK`, `R2_PUBLIC_URL`
 (동기화 스크립트는 추가로 `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`. RELATED DB는 WORKS의 `Related` 관계에서 찾으므로 `NOTION_DB_RELATED`는 없어도 됩니다.)
+
+## 노션 웹훅 (바뀐 페이지 바로 갱신)
+
+`pages/api/notion-webhook.js`가 노션 변경 알림을 받아 해당 페이지(`/`, `/works`, `/cv`, `/archive`, `/contact` + 바뀐 작품·전시·프로젝트·글 상세)만 다시 만듭니다. 10분 주기 갱신은 그대로입니다. 서명 확인은 `lib/webhook-sig.js`, 확인은 `npm run check:webhook`.
+
+설정 순서: ① 노션 연동 → Webhooks에 URL `https://dev.dul-works.com/api/notion-webhook`(운영은 `dul-works.com`), 이벤트 `page.content_updated`, `page.properties_updated`, `page.created`, `page.deleted`, `data_source.content_updated` ② Vercel Logs의 `notion verification_token:` 값을 복사 ③ 노션에서 Verify ④ 같은 값을 Vercel 환경 변수 `NOTION_WEBHOOK_TOKEN`(Preview·Production)에 넣고 재배포.

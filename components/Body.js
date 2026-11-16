@@ -105,6 +105,44 @@ function Gallery({ items, ctx }) {
   );
 }
 
+// 확대 보기: Esc·배경 클릭으로 닫기, ←/→ 키·화살표 단추·(모바일) 좌우 쓸기로 넘기기
+function Lightbox({ imgs, i, setI }) {
+  const n = imgs.length;
+  const go = (d) => setI((i + d + n) % n);
+  const close = () => setI(-1);
+  const box = useRef(null);
+  const x0 = useRef(null);
+  useEffect(() => {
+    const key = (e) => {
+      if (e.key === 'Escape') close();
+      else if (n > 1 && e.key === 'ArrowLeft') go(-1);
+      else if (n > 1 && e.key === 'ArrowRight') go(1);
+    };
+    document.addEventListener('keydown', key);
+    const prev = document.body.style.overflow;
+    const opener = document.activeElement;
+    document.body.style.overflow = 'hidden';
+    box.current?.querySelector('.lb-x')?.focus();
+    return () => {
+      document.removeEventListener('keydown', key);
+      document.body.style.overflow = prev;
+      opener?.focus?.();
+    };
+  });
+  const m = imgs[i];
+  return (
+    <div ref={box} className="lb" role="dialog" aria-modal="true" aria-label="enlarged image" onClick={close}
+      onTouchStart={(e) => { x0.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => { const d = e.changedTouches[0].clientX - x0.current; if (n > 1 && Math.abs(d) > 50) go(d < 0 ? 1 : -1); }}>
+      <img src={m.src} alt={m.alt || ''} onClick={(e) => e.stopPropagation()} />
+      <button type="button" className="lb-x" onClick={close} aria-label="close">close</button>
+      {n > 1 && <button type="button" className="lb-p" onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label="previous image">←</button>}
+      {n > 1 && <button type="button" className="lb-n" onClick={(e) => { e.stopPropagation(); go(1); }} aria-label="next image">→</button>}
+      {n > 1 && <span className="lb-c">{i + 1} / {n}</span>}
+    </div>
+  );
+}
+
 function Table({ rows }) {
   const width = Math.max(...rows.map((r) => r.length));
   return (
@@ -314,7 +352,7 @@ function ParRow({ n, ctx, solo }) {
  * defaultHead: 제목 없는 첫 섹션의 레일 이름 (작품 페이지 'about the work', 사이트 라벨은 영문만)
  * skip: 다른 자리로 옮긴 섹션 (credits)
  */
-export default function Body({ body, mode = 'column', title = '', defaultHead, skip = () => false, startNumber = 1 }) {
+function BodyInner({ body, mode = 'column', title = '', defaultHead, skip = () => false, startNumber = 1 }) {
   if (!body?.sections?.length) return null;
   const ctx = { fig: 0, img: 0, numbered: mode === 'column', title, level: body.level };
   const solo = body.lang !== 'both';
@@ -357,4 +395,33 @@ export default function Body({ body, mode = 'column', title = '', defaultHead, s
       })}
     </div>
   );
+}
+
+// 작품 페이지: 본문의 이미지(figure) 아무거나 눌러 확대. 같은 본문의 이미지끼리 넘김
+function ZoomRoot({ children }) {
+  const root = useRef(null);
+  const [open, setOpen] = useState(-1);
+  const [imgs, setImgs] = useState([]);
+  const list = () => [...root.current.querySelectorAll('figure.fig img')];
+  useEffect(() => {
+    list().forEach((im) => { im.classList.add('zoomable'); im.tabIndex = 0; im.setAttribute('role', 'button'); });
+  });
+  const start = (t) => {
+    const all = list();
+    const k = all.indexOf(t);
+    if (k < 0) return false;
+    setImgs(all.map((im) => ({ src: im.currentSrc || im.src, alt: im.alt })));
+    setOpen(k);
+    return true;
+  };
+  return (
+    <div ref={root} style={{ display: 'contents' }} onClick={(e) => start(e.target)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && start(e.target) && e.preventDefault()}>
+      {children}
+      {open >= 0 && <Lightbox imgs={imgs} i={open} setI={setOpen} />}
+    </div>
+  );
+}
+
+export default function Body({ zoom, ...props }) {
+  return zoom ? <ZoomRoot><BodyInner {...props} /></ZoomRoot> : <BodyInner {...props} />;
 }

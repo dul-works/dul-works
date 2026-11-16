@@ -43,7 +43,7 @@ export default function Exhibition({ e, poster, text, media, works, texts }) {
             </nav>
             <h1>
               <span className="t-page" style={{ display: 'block' }}>{e.name}</span>
-              {e.nameKr && e.nameKr !== e.name && <span className="t-page-kr" lang="ko" style={{ marginTop: 8 }}>{e.nameKr}</span>}
+              {e.nameKr && e.nameKr !== e.name && <span className="t-page-kr" lang="ko">{e.nameKr}</span>}
             </h1>
           </div>
           <div className="ex-side">

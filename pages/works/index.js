@@ -16,12 +16,12 @@ function GroupHead({ label, name, nameKr, sub, subKr, desc, descKr, href, link, 
     <div className={`group-head${desc || descKr ? '' : ' solo'}`}>
       <div>
         <span className="label">{label}</span>
-        <h2 style={{ marginTop: 4 }}>
-          {link ? <Link href={link} className={big} style={{ display: 'block', textDecoration: 'none' }}>{name}</Link> : <span className={big} style={{ display: 'block' }}>{name}</span>}
-          {nameKr && nameKr !== name && <span className="t-proj-kr" lang="ko" style={{ display: 'block', marginTop: 4 }}>{nameKr}</span>}
+        <h2>
+          {(link || href) ? <Link href={link || href} className={big} style={{ display: 'block', textDecoration: 'none' }}>{name}</Link> : <span className={big} style={{ display: 'block' }}>{name}</span>}
+          {nameKr && nameKr !== name && <span className="t-proj-kr" lang="ko" style={{ display: 'block' }}>{nameKr}</span>}
         </h2>
         {sub && <p className="sub">{sub}{subKr && <span className="kr" lang="ko" style={{ display: 'block', fontSize: 15 }}>{subKr}</span>}</p>}
-        {href && <p style={{ marginTop: 16 }}><Link href={href} className="tlink" style={{ fontSize: 15 }}>view project</Link></p>}
+        {href && <p className="vp"><Link href={href} className="tlink">view project</Link></p>}
       </div>
       {(desc || descKr) && (desc ? <p className="desc">{desc}</p> : <span aria-hidden="true" />)}
       {(desc || descKr) && (descKr ? <p className="desc-kr" lang="ko">{descKr}</p> : <span aria-hidden="true" />)}
@@ -29,7 +29,7 @@ function GroupHead({ label, name, nameKr, sub, subKr, desc, descKr, href, link, 
   );
 }
 
-export default function Works({ works, projects, exhibitions }) {
+export default function Works({ works, projects, etc, exhibitions }) {
   const router = useRouter();
   const group = GROUPS.includes(router.query.group) ? router.query.group : 'project';
   const sort = router.query.sort === 'oldest' ? 'oldest' : 'newest';
@@ -41,8 +41,9 @@ export default function Works({ works, projects, exhibitions }) {
   let groups = [];
   if (group === 'project') {
     groups = projects.map((p) => ({ key: p.slug, head: { label: 'project', name: p.name, nameKr: p.nameKr, desc: p.description, descKr: p.descriptionKr, href: `/projects/${p.slug}` }, works: pick(works.filter((w) => w.projectId === p.id).map((w) => w.id)) }));
-    const other = order(works.filter((w) => !w.projectId));
-    if (other.length) groups.push({ key: 'other-works', head: null, works: other });
+    // ETC 행(프로젝트 페이지 없음)과 프로젝트에 안 걸린 작품은 맨 뒤 한 묶음. 머리는 다른 프로젝트와 같은 모양, 링크만 없음
+    const other = order(works.filter((w) => !w.projectId || w.projectId === etc?.id));
+    if (other.length) groups.push({ key: 'other-works', head: { label: 'project', name: etc?.name || 'ETC', nameKr: etc?.nameKr, desc: etc?.description, descKr: etc?.descriptionKr }, works: other });
   } else if (group === 'exhibition') {
     groups = exhibitions.map((e) => ({ key: e.slug, poster: e.cover, link: `/exhibitions/${e.slug}`, name: e.name, head: { label: `${e.kind} exhibition`, name: e.name, nameKr: e.nameKr, sub: [e.venue, e.periodLabel].filter(Boolean).join(', '), subKr: e.venueKr, link: `/exhibitions/${e.slug}` }, works: pick(works.filter((w) => w.exhibitionIds.includes(e.id)).map((w) => w.id)) }));
     // 개인전 먼저, 그 아래 단체전. 각 묶음 안에서는 시작일 최신순 (oldest면 각 묶음 안에서 뒤집음, 개인전이 먼저인 것은 그대로)
@@ -75,8 +76,8 @@ export default function Works({ works, projects, exhibitions }) {
           <p className="empty-line">nothing here yet</p>
         )}
         {groups.map((g) => (
-          <section key={g.key} id={g.key} className={g.head ? 'group' : 'group other-works'} aria-label={g.head ? String(g.head.name) : 'other works'}>
-            {g.head ? <GroupHead {...g.head} /> : <h2 className="section-label" style={{ marginBottom: 24 }}>other works</h2>}
+          <section key={g.key} id={g.key} className={g.key === 'other-works' ? 'group other-works' : 'group'} aria-label={String(g.head.name)}>
+            <GroupHead {...g.head} />
             {g.poster ? (
               <div className="with-poster">
                 <Link href={g.link} className="card" aria-label={`${g.name}, exhibition page`}>
@@ -101,6 +102,7 @@ export async function getStaticProps() {
   return {
     props: {
       works,
+      etc: (({ id, name, nameKr, description, descriptionKr }) => ({ id, name, nameKr, description, descriptionKr }))(site.projects.find((p) => p.etc) || { id: null, name: 'ETC', nameKr: null, description: null, descriptionKr: null }),
       projects: site.projects.filter((p) => !p.etc && used.has(p.id)).sort((a, b) => a.order - b.order).map(({ id, slug, name, nameKr, description, descriptionKr }) => ({ id, slug, name, nameKr, description, descriptionKr })),
       exhibitions: site.exhibitions.map(({ id, slug, name, nameKr, kind, venue, venueKr, periodLabel, cover }) => ({ id, slug, name, nameKr, kind, venue, venueKr, periodLabel, cover })),
     },

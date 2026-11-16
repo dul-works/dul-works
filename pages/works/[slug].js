@@ -41,7 +41,7 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
             </nav>
             <h1>
               <span className="t-page" style={{ display: 'block' }}>{w.name}</span>
-              {w.nameKr && <span className="t-page-kr" lang="ko" style={{ marginTop: 8 }}>{w.nameKr}</span>}
+              {w.nameKr && <span className="t-page-kr" lang="ko">{w.nameKr}</span>}
             </h1>
           </div>
           <div className="info-wrap"><Info w={w} credits={credits} /></div>
@@ -51,13 +51,13 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
             <img src={cover} alt={`${w.name}, image 1`} style={{ width: '100%', height: 'auto' }} fetchpriority="high" />
           </figure>
         )}
-        <Body body={body} mode="parallel" title={w.name} defaultHead={{ en: [{ x: 'about the work' }] }} skip={(s) => /^credits$/i.test(rtText(s.head?.en).trim())} />
+        <Body zoom body={body} mode="parallel" title={w.name} defaultHead={{ en: [{ x: 'about the work' }] }} skip={(s) => /^credits$/i.test(rtText(s.head?.en).trim())} />
         <RelationLists exhibited={exhibited} texts={texts} />
         {also.length > 0 && (
           <section className="also rule">
             <div className="head">
               <h2 className="section-label">also in project ‘{project.name}’</h2>
-              <Link href={`/projects/${project.slug}`} className="tlink" style={{ minHeight: 'auto' }}>view project</Link>
+              <Link href={`/projects/${project.slug}`} className="tlink tlink-tight">view project</Link>
             </div>
             <Masonry cols={4} rowwise>{also.map((a) => <WorkCard key={a.slug} work={a} />)}</Masonry>
           </section>

@@ -85,6 +85,17 @@ export function Layout({ title, description, image, children }) {
   const { asPath } = useRouter();
   const path = asPath.split(/[?#]/)[0];
   const fullTitle = title ? `${title} — dul` : 'dul';
+  // 경로가 세 줄 이상 넘어가면 한 단계 작게 (두 줄까지는 그대로)
+  useEffect(() => {
+    const fit = () => document.querySelectorAll('.crumbs').forEach((c) => {
+      c.removeAttribute('data-small');
+      if (c.getBoundingClientRect().height > 50) c.setAttribute('data-small', '');
+    });
+    fit();
+    document.fonts?.ready.then(fit);
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, [asPath]);
   return (
     <>
       <Head>

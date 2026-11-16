@@ -49,6 +49,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             <Cover src={hero.cover} className="hero" alt={hero.name} eager />
             <div className="hero-meta">
               <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
+              <Desc w={hero} />
             </div>
           </Link>
         </div>
@@ -60,6 +61,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             <Cover src={hero.cover} className="hero-img" alt={hero.name} eager />
             <div className="hero-meta">
               <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
+              <Desc w={hero} />
             </div>
           </Link>
           {/* 그리기 전에 폭을 정해 깜빡임 없게: 1/2 폭에서 이미지 높이가 화면 높이를 넘으면 1/3 */}
@@ -103,7 +105,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             <h2 id="about-h" className="section-label">about</h2>
             {about.en && <p className="about-en">{about.en}</p>}
             {about.ko && <p className="about-kr" lang="ko">{about.ko}</p>}
-            <div className="about-link"><Link href="/cv#statement" className="tlink" style={{ fontSize: 17 }}>about dul</Link></div>
+            <div className="about-link"><Link href="/cv#statement" className="tlink">about dul</Link></div>
           </section>
         )}
 
@@ -111,11 +113,10 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
           <>
             <div className="selected-head rule">
               <h2 className="section-label">selected works</h2>
-              <Link href="/works" className="tlink" style={{ minHeight: 'auto' }}>all works</Link>
             </div>
             {wide && (
               <div className="sel-wide">
-                <WorkCard work={wide} />
+                <WorkCard work={wide} showDesc />
               </div>
             )}
             {alts.map((w, i) => (
@@ -133,11 +134,11 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             ))}
             {pairs.length > 0 && (
               <Masonry cols={2} className="sel-pair">
-                {pairs.map((w) => <WorkCard key={w.slug} work={w} />)}
+                {pairs.map((w) => <WorkCard key={w.slug} work={w} showDesc />)}
               </Masonry>
             )}
             <div className="all-works">
-              <Link href="/works" className="tlink" style={{ fontSize: 18 }}>all works</Link>
+              <Link href="/works" className="tlink">all works</Link>
             </div>
           </>
         )}
@@ -148,8 +149,8 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
 
 export async function getStaticProps() {
   const site = await getSite();
-  // Selected 체크한 작품만 Order 순으로 (첫 번째가 대표 사진). 체크가 없으면 대표 사진·selected works 칸 모두 숨김
-  const picks = site.artworks.filter((a) => a.selected).sort((a, b) => a.order - b.order);
+  // Selected 체크한 작품만 Home Order 순으로 (비면 Order) (첫 번째가 대표 사진). 체크가 없으면 대표 사진·selected works 칸 모두 숨김
+  const picks = site.artworks.filter((a) => a.selected).sort((a, b) => (a.homeOrder ?? a.order) - (b.homeOrder ?? b.order));
   const [hero, ...selected] = picks.map(card);
   if (hero) Object.assign(hero, await imageShape(hero.cover));
 
