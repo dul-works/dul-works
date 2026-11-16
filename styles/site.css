@@ -331,7 +331,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cv-row { display: grid; grid-template-columns: 184px minmax(0, 1fr) minmax(0, 0.9fr); gap: 0 24px; padding: 18px 0; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.35; }
 .cv-row .yr { color: var(--gray); }
 .cv-row .sub { display: block; margin-top: 6px; font-size: 15px; color: var(--kr); }
-.cv-row .cv-kr { font-family: var(--kr-sans); font-size: 15px; color: var(--kr); }
+.cv-row .cv-kr { font-family: var(--kr-sans); } /* 국문 전시명: 크기·굵기·색은 영문과 같음(상속), 글꼴만 국문 대응 */
 .cv-row a { text-decoration: none; }
 .cv-row a:hover { text-decoration: underline; text-underline-offset: 4px; }
 /* cv 맨 위 Artist Statement: 영문 | 국문 2열, 문단 단위 위쪽 정렬. 노션 굵은 글씨 = 굵기 + 글자 크기 한 단계 크게 (cv에만) */
