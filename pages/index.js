@@ -105,7 +105,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             <h2 id="about-h" className="section-label">about</h2>
             {about.en && <p className="about-en">{about.en}</p>}
             {about.ko && <p className="about-kr" lang="ko">{about.ko}</p>}
-            <div className="about-link"><Link href="/cv#statement" className="tlink" style={{ fontSize: 17 }}>about dul</Link></div>
+            <div className="about-link"><Link href="/cv#statement" className="tlink">about dul</Link></div>
           </section>
         )}
 
@@ -138,7 +138,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
               </Masonry>
             )}
             <div className="all-works">
-              <Link href="/works" className="tlink" style={{ fontSize: 18 }}>all works</Link>
+              <Link href="/works" className="tlink">all works</Link>
             </div>
           </>
         )}

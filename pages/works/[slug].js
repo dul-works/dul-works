@@ -57,7 +57,7 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
           <section className="also rule">
             <div className="head">
               <h2 className="section-label">also in project ‘{project.name}’</h2>
-              <Link href={`/projects/${project.slug}`} className="tlink" style={{ minHeight: 'auto' }}>view project</Link>
+              <Link href={`/projects/${project.slug}`} className="tlink tlink-tight">view project</Link>
             </div>
             <Masonry cols={4} rowwise>{also.map((a) => <WorkCard key={a.slug} work={a} />)}</Masonry>
           </section>

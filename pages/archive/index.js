@@ -28,7 +28,7 @@ export default function Texts({ texts, types }) {
           </div>
         </div>
         {list.length === 0 ? (
-          <p className="empty-line">nothing here yet <Link href="/works" className="tlink" style={{ marginLeft: 12 }}>works</Link></p>
+          <p className="empty-line">nothing here yet <Link href="/works" className="tlink">works</Link></p>
         ) : (
           <ul className="text-list">
             {list.map((t) => {
