@@ -134,6 +134,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .selected-head { margin-top: var(--sp-section); padding-top: 18px; display: flex; align-items: baseline; justify-content: space-between; }
 .sel-wide { margin-top: var(--sp-block); }
 .sel-wide .t-card { font-size: 26px; }
+.selected-head .section-label { font-size: 26px; line-height: 1.15; } /* 대표작 제목과 같은 크기 */
 .sel-alt { margin-top: var(--sp-section); display: grid; grid-template-columns: 880px 1fr; gap: 48px; align-items: end; }
 .sel-alt.flip { grid-template-columns: 1fr 880px; }
 .sel-alt.flip .sel-img { order: 2; }
@@ -363,6 +364,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .about-en { font-size: 17px; line-height: 1.65; }
   .about-kr { font-size: 16px; line-height: 1.8; }
   .sel-wide .t-card { font-size: 18px; }
+  .selected-head .section-label { font-size: 18px; }
   .sel-alt { grid-template-columns: 1fr; gap: var(--sp-block); }
   .masonry.c2, .masonry.c3 { grid-template-columns: 1fr; }
   .imgcols { grid-template-columns: 1fr; }
