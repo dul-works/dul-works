@@ -9,7 +9,8 @@
     "lint": "next lint",
     "sync-images-to-r2": "node scripts/sync-images-to-r2.js",
     "check:period": "node --no-warnings lib/period.check.mjs",
-    "check:home": "node --no-warnings lib/home.check.mjs"
+    "check:home": "node --no-warnings lib/home.check.mjs",
+    "check:webhook": "node --no-warnings lib/webhook.check.mjs"
   },
   "keywords": [],
   "author": "",
