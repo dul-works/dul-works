@@ -155,7 +155,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* 제목(영문, 국문은 다음 줄) 아래에 선, 그 아래 장소·기간. 제목 위에는 선 없음 */
 .now-row .now-title { padding-bottom: 12px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
 /* about: 라벨 | 영문 | 국문 3단. 열·간격은 작품 페이지 본문(.par)과 같음: 300 | 1fr | 1fr, gap 48. 글자 크기는 W1 병기 본문 */
-.about { margin-top: var(--sp-section); display: grid; grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--gap-col); row-gap: 0; padding-top: var(--sp-rule); }
+.about { margin-top: var(--sp-section); display: grid; grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--gap-col); row-gap: 0; padding-top: calc(var(--sp-rule) + 60.4px); } /* 위 구분선 → 라벨 = 링크 → 아래 구분선(위·아래 대칭, 실측) */
 .about .section-label { grid-column: 1; grid-row: 1; }
 .about-en { grid-column: 2; grid-row: 1; font-size: 19px; line-height: 1.7; }
 .about-kr { grid-column: 3; grid-row: 1; font-size: 17px; line-height: 1.9; color: var(--kr-body); }
@@ -398,6 +398,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .about-en { margin-top: calc(var(--sp-label) - 3px); }
   .about-kr { margin-top: calc(var(--sp-pair) - 12px); }
   .about-link { margin-top: calc(var(--sp-para) - 24.8px); }
+  .about { padding-top: calc(var(--sp-rule) + 36.7px); }
   .work-top h1 { margin-top: calc(var(--sp-label) - 4.8px); }
   .about .section-label, .about-en, .about-kr, .about-link { grid-column: 1; grid-row: auto; }
   .about-en { font-size: 17px; line-height: 1.65; }
