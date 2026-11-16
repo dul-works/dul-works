@@ -394,7 +394,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .about-kr { margin-top: calc(var(--sp-pair) - 12px); }
   .about-link { margin-top: calc(var(--sp-para) - 24.8px); }
   .work-top h1 { margin-top: calc(var(--sp-label) - 19.5px); }
-  .ex-head h1 { margin-top: calc(var(--sp-label) - 15.2px); }
   .about .section-label, .about-en, .about-kr, .about-link { grid-column: 1; grid-row: auto; }
   .about-en { font-size: 17px; line-height: 1.65; }
   .about-kr { font-size: 16px; line-height: 1.8; }
@@ -498,6 +497,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .ex-side { margin-top: var(--sp-block); max-width: 460px; }
 }
 @media (max-width: 767px) {
+  .ex-head h1 { margin-top: calc(var(--sp-label) - 15.2px); } /* 데스크톱 .ex-head h1 규칙이 위에 있으므로 이 블록에 둠 */
   .ex-row { grid-template-columns: 1fr; row-gap: 0; }
   .ex-row .kr { margin-top: calc(var(--sp-pair) - 13.7px); }
   .ex-row .en { font-size: 17px; line-height: 1.65; }
