@@ -1,7 +1,8 @@
 /* dul-works.com — 보드 Dul-W1 · Site-01~09 · Dul-P2/P3/P5 · 모바일 A stack (M1·M4) */
 
-@font-face { font-family: 'GmarketSans'; font-weight: 300; font-display: swap; src: url('/fonts/GmarketSans-Light.woff2') format('woff2'); }
-@font-face { font-family: 'GmarketSans'; font-weight: 500; font-display: swap; src: url('/fonts/GmarketSans-Medium.woff2') format('woff2'); }
+/* 글자 박스 고정: 파일 hhea ascent 800 / descent 200 / lineGap 150 (unitsPerEm 1000), OS/2 win 800/350. 브라우저에 따라 hhea(29/7 @36px) 또는 win(29/13)을 골라 박스 높이가 달라지던 것을 hhea 값으로 맞춤 → 영문→국문 짝·라벨 보정값이 모든 브라우저에서 같게 */
+@font-face { font-family: 'GmarketSans'; font-weight: 300; font-display: swap; ascent-override: 80%; descent-override: 20%; line-gap-override: 0%; src: url('/fonts/GmarketSans-Light.woff2') format('woff2'); }
+@font-face { font-family: 'GmarketSans'; font-weight: 500; font-display: swap; ascent-override: 80%; descent-override: 20%; line-gap-override: 0%; src: url('/fonts/GmarketSans-Medium.woff2') format('woff2'); }
 
 :root {
   --ink: #000000;
