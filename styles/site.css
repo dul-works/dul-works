@@ -136,6 +136,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* 터치 영역 44px는 ::after로만 (레이아웃 높이는 글자 줄 20px → 두 줄로 줄바꿈돼도 간격 일정) */
 .crumbs a { color: var(--gray); position: relative; }
 .crumbs a::after { content: ''; position: absolute; left: -4px; right: -4px; top: 50%; height: 44px; transform: translateY(-50%); }
+.crumbs[data-small] { font-size: 13px; }
 .crumbs a:hover { color: var(--ink); }
 .crumbs span[aria-current] { color: var(--ink); }
 
