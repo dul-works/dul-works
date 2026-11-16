@@ -79,14 +79,12 @@ function Caption({ cap, prefix }) {
   );
 }
 
-function Media({ n, ctx, onZoom }) {
+function Media({ n, ctx }) {
   const fig = ctx.numbered && (n.t === 'image' || n.t === 'video' || n.t === 'embed') ? ++ctx.fig : null;
   const prefix = fig ? { en: `fig. ${fig}, `, ko: '' } : null; // 사이트가 붙이는 글자는 영문만
   const alt = n.cap?.en || `${ctx.title}, image ${++ctx.img}`;
   let el = null;
-  if (n.t === 'image') el = onZoom
-    ? <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} className="zoomable" role="button" tabIndex={0} aria-label={`${alt}, enlarge`} onClick={onZoom} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onZoom())} />
-    : <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} />;
+  if (n.t === 'image') el = <img src={n.src} alt={alt} loading="lazy" decoding="async" style={{ width: '100%', height: 'auto' }} />;
   if (n.t === 'video') el = <Video src={n.src} label={alt} />;
   if (n.t === 'embed') el = <iframe className="embed" src={n.src} title={n.cap?.en || `${ctx.title}, video`} loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
   if (n.t === 'audio') return <AudioPill src={n.src} cap={n.cap} />;
@@ -100,15 +98,10 @@ function Media({ n, ctx, onZoom }) {
 
 // 사진 묶음: 2장 → 2열, 3장 이상 → 3열. 원본 비율, 간격 일정 (P7)
 function Gallery({ items, ctx }) {
-  const [open, setOpen] = useState(-1);
-  const imgs = items.filter((m) => m.t === 'image');
-  const zoom = (m) => (m.t === 'image' ? () => setOpen(imgs.indexOf(m)) : undefined);
-  const media = items.map((m, i) => <Media key={i} n={m} ctx={ctx} onZoom={zoom(m)} />);
   return (
-    <>
-      {items.length === 1 ? media : <Masonry cols={Math.min(items.length, 3)} className="gallery">{media}</Masonry>}
-      {open >= 0 && <Lightbox imgs={imgs} i={open} setI={setOpen} />}
-    </>
+    <Masonry cols={Math.min(items.length, 3)} className="gallery">
+      {items.map((m, i) => <Media key={i} n={m} ctx={ctx} />)}
+    </Masonry>
   );
 }
 
@@ -141,7 +134,7 @@ function Lightbox({ imgs, i, setI }) {
     <div ref={box} className="lb" role="dialog" aria-modal="true" aria-label="enlarged image" onClick={close}
       onTouchStart={(e) => { x0.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { const d = e.changedTouches[0].clientX - x0.current; if (n > 1 && Math.abs(d) > 50) go(d < 0 ? 1 : -1); }}>
-      <img src={m.src} alt={m.cap?.en || ''} onClick={(e) => e.stopPropagation()} />
+      <img src={m.src} alt={m.alt || ''} onClick={(e) => e.stopPropagation()} />
       <button type="button" className="lb-x" onClick={close} aria-label="close">close</button>
       {n > 1 && <button type="button" className="lb-p" onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label="previous image">←</button>}
       {n > 1 && <button type="button" className="lb-n" onClick={(e) => { e.stopPropagation(); go(1); }} aria-label="next image">→</button>}
@@ -307,7 +300,7 @@ function Block({ n, ctx, mode }) {
         </div>
       );
     case 'gallery':
-      return <Gallery items={n.items} ctx={ctx} />;
+      return n.items.length === 1 ? <Media n={n.items[0]} ctx={ctx} /> : <Gallery items={n.items} ctx={ctx} />;
     case 'table':
       return <Table rows={n.rows} />;
     case 'bookmark':
@@ -359,7 +352,7 @@ function ParRow({ n, ctx, solo }) {
  * defaultHead: 제목 없는 첫 섹션의 레일 이름 (작품 페이지 'about the work', 사이트 라벨은 영문만)
  * skip: 다른 자리로 옮긴 섹션 (credits)
  */
-export default function Body({ body, mode = 'column', title = '', defaultHead, skip = () => false, startNumber = 1 }) {
+function BodyInner({ body, mode = 'column', title = '', defaultHead, skip = () => false, startNumber = 1 }) {
   if (!body?.sections?.length) return null;
   const ctx = { fig: 0, img: 0, numbered: mode === 'column', title, level: body.level };
   const solo = body.lang !== 'both';
@@ -402,4 +395,33 @@ export default function Body({ body, mode = 'column', title = '', defaultHead, s
       })}
     </div>
   );
+}
+
+// 작품 페이지: 본문의 이미지(figure) 아무거나 눌러 확대. 같은 본문의 이미지끼리 넘김
+function ZoomRoot({ children }) {
+  const root = useRef(null);
+  const [open, setOpen] = useState(-1);
+  const [imgs, setImgs] = useState([]);
+  const list = () => [...root.current.querySelectorAll('figure.fig img')];
+  useEffect(() => {
+    list().forEach((im) => { im.classList.add('zoomable'); im.tabIndex = 0; im.setAttribute('role', 'button'); });
+  });
+  const start = (t) => {
+    const all = list();
+    const k = all.indexOf(t);
+    if (k < 0) return false;
+    setImgs(all.map((im) => ({ src: im.currentSrc || im.src, alt: im.alt })));
+    setOpen(k);
+    return true;
+  };
+  return (
+    <div ref={root} style={{ display: 'contents' }} onClick={(e) => start(e.target)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && start(e.target) && e.preventDefault()}>
+      {children}
+      {open >= 0 && <Lightbox imgs={imgs} i={open} setI={setOpen} />}
+    </div>
+  );
+}
+
+export default function Body({ zoom, ...props }) {
+  return zoom ? <ZoomRoot><BodyInner {...props} /></ZoomRoot> : <BodyInner {...props} />;
 }
