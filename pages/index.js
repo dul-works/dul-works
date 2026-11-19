@@ -46,7 +46,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
         // 가로 이미지: 본문과 같은 컨테이너(좌우 여백·최대 폭) 안에 원본 비율로, 높이는 화면의 72%까지
         <div className="wrap">
           <Link href={`/works/${hero.slug}`} className="card hero-wide">
-            <Cover src={hero.cover} className="hero" alt={hero.name} eager />
+            <Cover src={hero.cover} video={hero.video} className="hero" alt={hero.name} eager />
             <div className="hero-meta">
               <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
               <Desc w={hero} />
@@ -58,7 +58,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
         // 세로 이미지: 왼쪽에 콘텐츠 폭의 1/2, 그래도 화면보다 길면 1/3. 제목·연도는 오른쪽 아래
         <div className="wrap">
           <Link href={`/works/${hero.slug}`} className="card hero-portrait" id="hero-portrait" style={{ '--r': hero.ratio }}>
-            <Cover src={hero.cover} className="hero-img" alt={hero.name} eager />
+            <Cover src={hero.cover} video={hero.video} className="hero-img" alt={hero.name} eager />
             <div className="hero-meta">
               <TitlePair name={hero.name} nameKr={hero.nameKr} year={hero.year} as="h2" en="t-card" kr="t-card-kr" />
               <Desc w={hero} />
@@ -122,7 +122,7 @@ export default function Home({ hero, selected, now, upcoming, about, sloganKr })
             {alts.map((w, i) => (
               <div key={w.slug} className={`sel-alt${i % 2 ? ' flip' : ''}`}>
                 <Link href={`/works/${w.slug}`} className="card sel-img" tabIndex={-1} aria-hidden="true">
-                  <Cover src={w.cover} />
+                  <Cover src={w.cover} video={w.video} />
                 </Link>
                 <div>
                   <Link href={`/works/${w.slug}`} className="card">

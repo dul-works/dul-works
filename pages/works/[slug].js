@@ -1,6 +1,6 @@
 // 작품 상세 (Dul-P3)
 import Link from 'next/link';
-import { Layout, TitlePair, WorkCard, RelationLists, Masonry } from '../../components/ui';
+import { Layout, TitlePair, LoopVideo, WorkCard, RelationLists, Masonry } from '../../components/ui';
 import Body from '../../components/Body';
 import { getSite, getPageBody, byNewest, card, exhibitedRow, textRow, periodCmp, REVALIDATE } from '../../lib/data';
 import { firstImage, rtText } from '../../lib/blocks';
@@ -46,9 +46,9 @@ export default function Work({ w, project, body, cover, credits, exhibited, text
           </div>
           <div className="info-wrap"><Info w={w} credits={credits} /></div>
         </div>
-        {cover && (
+        {(cover || w.coverVideo) && (
           <figure className="work-cover bleed">
-            <img src={cover} alt={`${w.name}, image 1`} style={{ width: '100%', height: 'auto' }} fetchpriority="high" />
+            {w.coverVideo ? <LoopVideo src={w.coverVideo} poster={cover} alt={`${w.name}, cover`} className="cover-img" /> : <img src={cover} alt={`${w.name}, image 1`} style={{ width: '100%', height: 'auto' }} fetchpriority="high" />}
           </figure>
         )}
         <Body zoom body={body} mode="parallel" title={w.name} defaultHead={{ en: [{ x: 'about the work' }] }} skip={(s) => /^credits$/i.test(rtText(s.head?.en).trim())} />

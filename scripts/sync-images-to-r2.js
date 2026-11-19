@@ -19,7 +19,9 @@ const fs = require('fs');
 const path = require('path');
 const { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 const sharp = require('sharp');
-const { r2KeyFromUrl, blockImageFilename } = require('../lib/r2-key');
+const os = require('os');
+const { execFile } = require('child_process');
+const { r2KeyFromUrl, blockImageFilename, isVideo, webVideoKey, posterKey } = require('../lib/r2-key');
 
 // 로컬 정적 파일 → R2 키 접두어. images는 Image 필드 레거시 참조용이라 루트 키 그대로
 const LOCAL_DIRS = [
@@ -192,7 +194,8 @@ async function collectBlockImages(blockId, apiKey, found, depth = 0) {
   }
 }
 
-function collectPropertyImages(page, found) {
+// 작품 Cover 속성의 영상: 원본은 R2에 올리지 않고(found에 넣지 않음) 웹 사본·poster만 만든다
+function collectPropertyImages(page, found, coverVideos) {
   const cover = page.cover;
   const coverUrl = cover?.file?.url || cover?.external?.url;
   if (coverUrl) {
@@ -200,14 +203,34 @@ function collectPropertyImages(page, found) {
     if (key) found.set(key, coverUrl);
   }
 
-  for (const prop of Object.values(page.properties || {})) {
+  for (const [name, prop] of Object.entries(page.properties || {})) {
     if (prop.type !== 'files') continue;
     for (const file of prop.files || []) {
       const url = file.file?.url || file.external?.url;
       const key = url && r2KeyFromUrl(url);
-      if (key) found.set(key, url);
+      if (!key) continue;
+      if (name.toLowerCase() === 'cover' && isVideo(key)) coverVideos.set(key, url);
+      else found.set(key, url);
     }
   }
+}
+
+// 영상 첫 프레임(0.5초) → PNG 버퍼. ffmpeg 없거나 실패하면 null
+function firstFrame(url) {
+  return new Promise((resolve) => {
+    execFile('ffmpeg', ['-loglevel', 'error', '-ss', '0.5', '-i', url, '-frames:v', '1', '-f', 'image2pipe', '-vcodec', 'png', '-'],
+      { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024, timeout: 120000 },
+      (err, stdout) => resolve(err || !stdout.length ? null : stdout));
+  });
+}
+
+// 웹용 사본: 가로 1280 이하, H.264 crf 27, 소리 없음, faststart → 파일 경로 또는 null
+function webCopy(url) {
+  const tmp = path.join(os.tmpdir(), `portfolio-web-${Date.now()}.mp4`);
+  return new Promise((resolve) => {
+    execFile('ffmpeg', ['-loglevel', 'error', '-y', '-i', url, '-an', '-vf', "scale='min(1280,iw)':-2", '-c:v', 'libx264', '-preset', 'medium', '-crf', '27', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', tmp],
+      { timeout: 30 * 60 * 1000 }, (err) => resolve(err ? null : tmp));
+  });
 }
 
 async function listExistingKeys(s3, bucket) {
@@ -327,8 +350,9 @@ async function main() {
   console.log(`📄 페이지: ${pages.length}개 — 본문 이미지 블록 탐색 중 (시간이 걸릴 수 있어요)`);
 
   const found = new Map();
+  const coverVideos = new Map(); // key → Notion URL (원본은 올리지 않음)
   for (const page of pages) {
-    collectPropertyImages(page, found);
+    collectPropertyImages(page, found, coverVideos);
     try {
       await collectBlockImages(page.id, NOTION_API_KEY, found);
     } catch (err) {
@@ -361,6 +385,39 @@ async function main() {
       failed++;
     }
   });
+
+  // 2-2) Cover 영상: 웹 사본 + poster만 R2에 (항상 변환, 원본 업로드 없음). 파생 키는 삭제 대상에서 제외
+  for (const [key, url] of coverVideos) {
+    const wk = webVideoKey(key);
+    const pk = posterKey(key);
+    found.set(wk, null);
+    found.set(pk, null);
+    try {
+      if (!existingKeys.has(pk)) {
+        const frame = await firstFrame(url);
+        if (!frame) throw new Error('poster (ffmpeg)');
+        const jpg = await sharp(frame).resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer();
+        await withRetry(() => upload(s3, R2_BUCKET_NAME, pk, jpg, 'image/jpeg'));
+        existingKeys.set(pk, jpg.length);
+        console.log(`🖼️  ${pk}`);
+        uploaded++;
+      }
+      if (!existingKeys.has(wk)) {
+        console.log(`🎞️  변환 중 ${key} …`);
+        const tmp = await webCopy(url);
+        if (!tmp) throw new Error('web copy (ffmpeg)');
+        const out = fs.readFileSync(tmp);
+        fs.rmSync(tmp, { force: true });
+        await withRetry(() => upload(s3, R2_BUCKET_NAME, wk, out, 'video/mp4'));
+        existingKeys.set(wk, out.length);
+        console.log(`🎞️  ${wk} (${(out.length / 1048576).toFixed(1)}MB)`);
+        uploaded++;
+      }
+    } catch (err) {
+      console.warn(`⚠️  Cover 영상 실패: ${key} — ${err.message}`);
+      failed++;
+    }
+  }
 
   // 3) Notion에서 사라진 이미지 삭제 (Notion에서 온 notion/, external/ 키만 대상)
   const orphans = [...existingKeys.keys()].filter((key) => MANAGED_PREFIXES.some((p) => key.startsWith(p)) && !found.has(key));

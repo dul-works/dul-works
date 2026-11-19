@@ -158,8 +158,21 @@ export function Rich({ rt, lang }) {
  * 커버 이미지: 원본 비율 그대로(폭 맞춤, 높이는 이미지대로, 자르지 않음).
  * 이미지가 없을 때만 #F1F2F2 빈 칸 + 작은 로고 (placeholder 비율은 className, 기본 4:3)
  */
-export function Cover({ src, alt = '', className = '', placeholder = 'ratio-43', eager = false }) {
-  if (!src) {
+/** 짧은 반복 영상: 화면에 보일 때만 재생, 움직임 줄이기 설정이면 poster만 (소리 없음) */
+export function LoopVideo({ src, poster, className = 'cover-img', alt = '' }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); });
+    io.observe(v);
+    return () => io.disconnect();
+  }, [src]);
+  return <video ref={ref} className={className} src={src} poster={poster || undefined} muted loop playsInline preload="metadata" aria-label={alt || undefined} aria-hidden={alt ? undefined : true} />;
+}
+
+export function Cover({ src, video, alt = '', className = '', placeholder = 'ratio-43', eager = false }) {
+  if (!src && !video) {
     return (
       <div className={`ph ${placeholder} ${className}`} role={alt ? 'img' : undefined} aria-label={alt || undefined}>
         <Logo width={32} height={48} stroke={14} style={{ color: '#666B6A' }} />
@@ -168,7 +181,11 @@ export function Cover({ src, alt = '', className = '', placeholder = 'ratio-43',
   }
   return (
     <div className={className}>
-      <img className="cover-img" src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
+      {video ? (
+        <LoopVideo src={video} poster={src} alt={alt} />
+      ) : (
+        <img className="cover-img" src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
+      )}
     </div>
   );
 }
@@ -190,7 +207,7 @@ export function TitlePair({ name, nameKr, year, as: Tag = 'h3', en = 't-card', k
 export function WorkCard({ work, heading = 'h3', showDesc = false }) {
   return (
     <Link href={`/works/${work.slug}`} className="card">
-      <Cover src={work.cover} />
+      <Cover src={work.cover} video={work.video} />
       <div className="meta">
         <TitlePair name={work.name} nameKr={work.nameKr} year={work.year} as={heading} />
         {work.year && <span className="year-m" hidden>{work.year}</span>}
