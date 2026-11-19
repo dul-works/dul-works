@@ -28,6 +28,9 @@ jobs:
 
       - run: npm ci
 
+      # 영상 최적화용. 러너에 이미 있으면 설치 건너뜀
+      - run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+
       - run: npm run sync-images-to-r2
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}

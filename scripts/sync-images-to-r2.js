@@ -6,7 +6,8 @@
 // - 끝나면 manifest.json에 R2 파일 목록 기록 → 사이트는 목록에 없는 이미지를 Notion 주소로 임시 표시
 // - public/assets/{images,videos,pdf} 의 로컬 파일도 함께 업로드 (images는 루트 키, videos/·pdf/ 접두어)
 // - Notion 커버, Files 속성, 페이지 본문(열·토글 안쪽 포함)의 이미지·영상·소리·파일·pdf 블록을 모두 수집
-// - 이미지만 WebP로 바꾸고, 나머지는 원본 그대로
+// - 이미지는 WebP로, 영상은 ffmpeg로 웹용 mp4(H.264, 긴 변 1920px, CRF 26, AAC 128k)로 줄여서 업로드. 나머지는 원본 그대로
+// - 줄인 영상은 R2 메타데이터 optimized=1 로 표시 → 다음 회차부터 건너뜀
 // - Notion 원본은 WebP(긴 변 2400px, 품질 85)로 변환해서 업로드
 // - R2 키 규칙은 사이트와 공유 (lib/r2-key.js)
 // - dev/main 브랜치가 같은 R2 버킷을 참조하므로 한 번 올리면 양쪽에서 공유됨
@@ -17,7 +18,9 @@ loadEnvConfig(process.cwd());
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
+const os = require('os');
+const { execFile } = require('child_process');
+const { S3Client, PutObjectCommand, HeadObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 const sharp = require('sharp');
 const { r2KeyFromUrl, blockImageFilename } = require('../lib/r2-key');
 
@@ -31,6 +34,9 @@ const MAX_EDGE = 2400;
 const WEBP_QUALITY = 85;
 const CONCURRENCY = 4;
 const UNOPTIMIZED_SIZE = 3 * 1024 * 1024;
+const VIDEO_MAX_EDGE = 1920;
+const VIDEO_CRF = 26;
+const VIDEO_RE = /\.(mp4|mov|m4v|webm)$/i;
 const MANAGED_PREFIXES = ['notion/', 'external/'];
 const MAX_DELETE_RATIO = 0.5;
 const MANIFEST_KEY = 'manifest.json';
@@ -224,8 +230,44 @@ async function listExistingKeys(s3, bucket) {
   return keys;
 }
 
-async function upload(s3, bucket, key, body, contentType = getContentType(key)) {
-  await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType }));
+async function upload(s3, bucket, key, body, contentType = getContentType(key), metadata) {
+  await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType, Metadata: metadata }));
+}
+
+// 이미 최적화해서 올린 영상인지 (R2 메타데이터로 판단)
+async function isOptimizedVideo(s3, bucket, key) {
+  try {
+    const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    return head.Metadata?.optimized === '1';
+  } catch {
+    return false;
+  }
+}
+
+// 원본 영상(수십~수백 MB)을 웹용 mp4로 변환. 키(확장자)는 그대로 두고 Content-Type만 mp4
+// 사운드 작업이 많아 오디오는 지우지 않고 AAC로 줄임. 결과가 원본보다 크면 원본 유지
+function optimizeVideo(buffer, key) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vid-'));
+  const input = path.join(dir, 'in' + (path.extname(key) || '.mp4'));
+  const output = path.join(dir, 'out.mp4');
+  fs.writeFileSync(input, buffer);
+  const e = VIDEO_MAX_EDGE;
+  const args = ['-y', '-loglevel', 'error', '-i', input,
+    '-map', '0:v:0', '-map', '0:a:0?',
+    '-vf', `scale='if(gte(iw,ih),min(${e},iw),-2)':'if(gte(iw,ih),-2,min(${e},ih))'`,
+    '-c:v', 'libx264', '-preset', 'medium', '-crf', String(VIDEO_CRF), '-pix_fmt', 'yuv420p',
+    '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', output];
+  return new Promise((resolve, reject) => {
+    execFile('ffmpeg', args, { maxBuffer: 1024 * 1024 }, (err, _out, stderr) => {
+      try {
+        if (err) return reject(new Error(`ffmpeg 실패: ${(stderr || err.message).trim().split('\n').pop()}`));
+        const body = fs.readFileSync(output);
+        resolve(body.length < buffer.length ? { body, contentType: 'video/mp4' } : { body: buffer, contentType: null });
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    });
+  });
 }
 
 // Notion 원본(수 MB)을 웹용 WebP로 변환. 키(확장자)는 사이트 규칙 유지를 위해 그대로 두고 Content-Type만 webp
@@ -290,8 +332,10 @@ async function main() {
       const key = prefix + filename;
       if (existingKeys.has(key)) { skipped++; continue; }
       try {
-        const body = fs.readFileSync(path.join(absDir, filename));
-        await withRetry(() => upload(s3, R2_BUCKET_NAME, key, body));
+        let body = fs.readFileSync(path.join(absDir, filename));
+        let contentType;
+        if (VIDEO_RE.test(filename)) ({ body, contentType } = await optimizeVideo(body, filename));
+        await withRetry(() => upload(s3, R2_BUCKET_NAME, key, body, contentType || getContentType(key), VIDEO_RE.test(filename) ? { optimized: '1' } : undefined));
         existingKeys.set(key, body.length);
         console.log(`✅ 업로드(로컬): ${key}`);
         uploaded++;
@@ -339,20 +383,28 @@ async function main() {
   console.log(`🔍 Notion 이미지: ${found.size}개`);
 
   // 이미 있어도 최적화 전 원본 크기면 다시 올림
-  const pending = [...found].filter(([key]) => {
+  // 영상은 이미 있어도 최적화 표시(optimized=1)가 없으면 다시 올림 (예전에 원본 그대로 올라간 영상 포함)
+  const pending = [];
+  for (const [key, url] of found) {
     const size = existingKeys.get(key);
     const isImage = /\.(jpe?g|png|gif|webp)$/i.test(key);
-    if (size !== undefined && (!isImage || size <= UNOPTIMIZED_SIZE)) { skipped++; return false; }
-    return true;
-  });
+    const isVideo = VIDEO_RE.test(key);
+    if (size !== undefined) {
+      if (isVideo ? await isOptimizedVideo(s3, R2_BUCKET_NAME, key) : (!isImage || size <= UNOPTIMIZED_SIZE)) { skipped++; continue; }
+    }
+    pending.push([key, url]);
+  }
   console.log(`⬆️  업로드 대상: ${pending.length}개 (동시 ${CONCURRENCY}개)`);
 
   await runPool(pending, CONCURRENCY, async ([key, url]) => {
     try {
       const original = await withRetry(() => downloadToBuffer(url));
       const isImage = /\.(jpe?g|png|gif|webp|heic|tiff?)$/i.test(key) || !path.extname(key);
-      const { body, contentType } = isImage ? await optimizeImage(original) : { body: original, contentType: null };
-      await withRetry(() => upload(s3, R2_BUCKET_NAME, key, body, contentType || getContentType(key)));
+      const isVideo = VIDEO_RE.test(key);
+      const { body, contentType } = isImage ? await optimizeImage(original)
+        : isVideo ? await optimizeVideo(original, key)
+        : { body: original, contentType: null };
+      await withRetry(() => upload(s3, R2_BUCKET_NAME, key, body, contentType || getContentType(key), isVideo ? { optimized: '1' } : undefined));
       existingKeys.set(key, body.length);
       console.log(`✅ 업로드(Notion): ${key} (${(original.length / 1e6).toFixed(1)}MB → ${(body.length / 1e6).toFixed(2)}MB)`);
       uploaded++;
