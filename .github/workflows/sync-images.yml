@@ -28,6 +28,9 @@ jobs:
 
       - run: npm ci
 
+      # 작품 Cover 영상 웹 사본·poster 용 (러너에 보통 있음)
+      - run: command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
       - run: npm run sync-images-to-r2
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
